@@ -1,0 +1,64 @@
+<resources>
+
+    <style name="Theme.FlareConverter.DayNight" parent="Theme.Material3.DayNight">
+        <!-- Primary Colors -->
+        <item name="colorPrimary">@color/primary</item>
+        <!--        <item name="colorPrimaryDark">@color/primary</item>-->
+        <!--        <item name="colorPrimaryFixed">@color/primary</item>-->
+        <item name="colorOnPrimary">@color/onPrimary</item>
+        <item name="colorPrimaryContainer">@color/primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/onPrimaryContainer</item>
+
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/onSecondary</item>
+        <item name="colorSecondaryContainer">@color/secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/onSecondaryContainer</item>
+
+        <!-- Background Colors -->
+        <item name="backgroundColor">@color/background</item>
+        <item name="background">@color/background</item>
+        <item name="colorOnBackground">@color/onBackground</item>
+
+        <!-- Surface Colors -->
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/onSurface</item>
+
+
+        <!-- Other Colors -->
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/onError</item>
+        <item name="colorErrorContainer">@color/errorContainer</item>
+        <item name="colorOnErrorContainer">@color/onErrorContainer</item>
+
+        <item name="android:textColorHighlight">@color/primary</item>
+        <item name="android:textColorHighlightInverse">@color/primary</item>
+
+        <item name="android:colorBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:navigationBarColor">@color/background</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.FlareConverter.DayNight.NoActionBar" parent="Theme.FlareConverter.DayNight">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.FlareConverter.DayNight.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.FlareConverter.DayNight.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="ButtonTheme" parent="@style/Widget.Material3.Button">
+        <item name="rippleColor">@color/secondary</item>
+        <item name="android:textColor">@color/onPrimary</item>
+        <item name="backgroundTint">@color/primary</item>
+    </style>
+
+    <style name="Button.TextButton" parent="@style/ButtonTheme">
+        <item name="android:textColor">@color/secondary</item>
+        <item name="rippleColor">@color/secondary</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+    </style>
+
+</resources>
