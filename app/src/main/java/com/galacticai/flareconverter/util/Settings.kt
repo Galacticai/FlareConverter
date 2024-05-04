@@ -1,6 +1,7 @@
 package com.galacticai.flareconverter.util
 
 import android.content.Context
+import android.util.Log
 import com.galacticai.flareconverter.models.MimeType
 import com.galacticai.flareconverter.models.settings.ObjectSetting
 import com.galacticai.flareconverter.models.settings.Setting
@@ -17,19 +18,32 @@ object Settings {
     /** [ObjectSetting] of the last destination [MimeType] for the given mime type
      * @param fromMimeType source [MimeType] */
     class OutMime(fromMimeType: MimeType) : ObjectSetting<MimeType>(
-        keyName = key(fromMimeType),
+        keyName = fromMimeType.settingKey,
         defaultObject = defaultObject(fromMimeType)
     ) {
-        override suspend fun getObject(context: Context) =
-            MimeType.fromJson(JSONObject(get(context)))
+        override suspend fun getObject(context: Context): MimeType {
+            val value = get(context)
+            return try {
+                val json = JSONObject(value)
+                MimeType.fromJson(json)
+            } catch (e: Exception) {
+                Log.e(
+                    "Settings.OutMime",
+                    "Resetting to default ($keyName). Invalid json: $value",
+                    e
+                )
+                setObject(context, defaultObject)
+                defaultObject
+            }
+        }
+
         override suspend fun setObject(context: Context, value: MimeType) =
             super.set(context, value.toJson().toString())
 
+
         companion object {
-            private fun key(mimeType: MimeType): String {
-                val category = mimeType.category.toKey()
-                return "LastSelectedMime_$category"
-            }
+            private val MimeType.settingKey
+                get() = "LastSelectedMime_${this.category.toKey()}"
 
             private fun defaultObject(mimeType: MimeType) =
                 MimeTypeUtils.getConvertibleList(mimeType.mime)!!.first()
