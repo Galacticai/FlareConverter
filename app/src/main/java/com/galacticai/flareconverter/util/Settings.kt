@@ -22,6 +22,8 @@ object Settings {
     ) {
         override suspend fun getObject(context: Context) =
             MimeType.fromJson(JSONObject(get(context)))
+        override suspend fun setObject(context: Context, value: MimeType) =
+            super.set(context, value.toJson().toString())
 
         companion object {
             private fun key(mimeType: MimeType): String {
