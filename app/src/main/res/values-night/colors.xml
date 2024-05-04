@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors -->
+    <color name="primary">@color/galactic_blue_light_300</color>
+    <color name="onPrimary">@color/galactic_blue_900</color>
+    <color name="primaryContainer">@color/galactic_blue_900</color>
+    <color name="onPrimaryContainer">@color/galactic_blue_light_100</color>
+
+    <!-- Secondary Colors -->
+    <color name="secondary">@color/galactic_yellow_200</color>
+    <color name="onSecondary">@color/galactic_yellow_dark_900</color>
+    <color name="secondaryContainer">@color/galactic_yellow_dark_800</color>
+    <color name="onSecondaryContainer">@color/galactic_yellow_50</color>
+
+    <!-- Background Colors -->
+    <color name="background">@color/galactic_blue_darker</color>
+    <color name="onBackground">@color/galactic_blue_50</color>
+
+    <!-- Surface Colors -->
+    <color name="surface">@color/galactic_blue_dark</color>
+    <color name="onSurface">@color/galactic_blue_50</color>
+
+    <!-- Other Colors -->
+    <color name="errorContainer">#410002</color>
+    <color name="onErrorContainer">#ffdad6</color>
+
+    <color name="successContainer">#024100</color>
+    <color name="onSuccessContainer">#d6ffda</color>
+
+    <color name="warningContainer">#412e00</color>
+    <color name="onWarningContainer">#fff9d6</color>
+</resources>
