@@ -1,0 +1,57 @@
+# Gradle / Kotlin
+.gradle/
+.kotlin/
+build/
+*/build/
+
+# Local config (your machine)
+local.properties
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+*.ipr
+*.iws
+
+# Android Studio / IntelliJ caches
+.idea/*
+.artifacts/
+# gradle cache
+gradle/
+
+# Android build outputs / artifacts
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+output-metadata.json
+
+# Captures / native build output
+captures/
+.externalNativeBuild/
+.cxx/
+obj/
+
+# Logs
+*.log
+
+# Signing files (keep private)
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# Keystore dir
+# app/keystore/
+# release/keystore/
+
+# Google services
+# google-services.json
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+
+graphify-out/
