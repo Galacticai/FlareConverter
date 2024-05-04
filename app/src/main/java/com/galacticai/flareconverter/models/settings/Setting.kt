@@ -26,30 +26,28 @@ open class Setting<T>(
     val keyName: String,
     val defaultValue: T,
 ) {
-
-
-    val key = when (defaultValue) {
-        is Boolean -> booleanPreferencesKey(keyName)
-        is Int -> intPreferencesKey(keyName)
-        is Long -> longPreferencesKey(keyName)
-        is Float -> floatPreferencesKey(keyName)
-        is Double -> doublePreferencesKey(keyName)
-        is String -> stringPreferencesKey(keyName)
+    @Suppress("UNCHECKED_CAST") //! T is always one of the below types
+    val key: Preferences.Key<T> = when (defaultValue) {
+        is Boolean -> booleanPreferencesKey(keyName) as Preferences.Key<T>
+        is Int -> intPreferencesKey(keyName) as Preferences.Key<T>
+        is Long -> longPreferencesKey(keyName) as Preferences.Key<T>
+        is Float -> floatPreferencesKey(keyName) as Preferences.Key<T>
+        is Double -> doublePreferencesKey(keyName) as Preferences.Key<T>
+        is String -> stringPreferencesKey(keyName) as Preferences.Key<T>
         else -> throw IllegalArgumentException("Unsupported type")
     }
 
-    @Suppress("UNCHECKED_CAST") //! set(.) will always save the value as T
     suspend fun get(context: Context): T = context
         .dataStore.data
-        .firstOrNull()?.get(key) as T
+        .firstOrNull()?.get(key)
         ?: defaultValue
 
-    @Suppress("UNCHECKED_CAST") //! get(..) will always save the key as Preferences.Key<T>
-    suspend fun set(context: Context, value: T) = context
-        .dataStore.edit {
-            val k = key as Preferences.Key<T>
+    suspend fun set(context: Context, value: T) {
+        context.dataStore.edit {
+            val k = key
             it[k] = value
         }
+    }
 
     suspend fun restoreDefault(context: Context) = set(context, defaultValue)
 
