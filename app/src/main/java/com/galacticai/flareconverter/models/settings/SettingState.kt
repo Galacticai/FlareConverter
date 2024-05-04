@@ -1,4 +1,4 @@
-package com.galacticai.flareconverter.util.settings
+package com.galacticai.flareconverter.models.settings
 
 import android.content.Context
 import androidx.compose.runtime.MutableState

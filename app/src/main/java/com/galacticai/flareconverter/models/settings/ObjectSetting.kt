@@ -1,4 +1,4 @@
-package com.galacticai.flareconverter.util.settings
+package com.galacticai.flareconverter.models.settings
 
 import android.content.Context
 import androidx.compose.runtime.Composable
@@ -8,17 +8,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
-import global.common.models.Jsonable
+import java.io.Serializable
 
-abstract class ObjectSetting<T : Jsonable>(
+abstract class ObjectSetting<T : Serializable>(
     keyName: String,
     val defaultObject: T
 ) : Setting<String>(
     keyName,
-    defaultObject.toJson().toString()
+    defaultObject.toString()
 ) {
     open suspend fun setObject(context: Context, value: T) {
-        super.set(context, value.toJson().toString())
+        super.set(context, value.toString())
     }
 
     abstract suspend fun getObject(context: Context): T

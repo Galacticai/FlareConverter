@@ -4,10 +4,14 @@ import com.galacticai.flareconverter.models.FFmpegCommand
 import global.common.models.Command
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.time.Duration
-import java.time.temporal.ChronoUnit
 
 class Tests {
+    @Test
+    fun pair() {
+        val p = 1 to 5
+        assertEquals("(1, 5)", p.toString())
+    }
+
     @Test
     fun command() {
         val cmd = Command(
@@ -35,7 +39,7 @@ class Tests {
 
         cmd.io(input, output)
             .speedVideoAudio(speed)
-            .duration(Duration.of(1000L, ChronoUnit.MILLIS))
+            .duration(1000L)
 
         assertEquals(
             "ffmpeg -i $input $output -vf setpts=${speed}*PTS -af atempo=${1 / speed} -t 0:0:1.0",

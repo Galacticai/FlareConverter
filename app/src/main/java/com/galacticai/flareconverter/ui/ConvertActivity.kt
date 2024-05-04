@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -15,6 +16,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -25,13 +27,12 @@ import androidx.compose.material.icons.rounded.AccountBox
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -46,6 +47,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -56,15 +58,16 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.galacticai.flareconverter.BuildConfig
 import com.galacticai.flareconverter.R
+import com.galacticai.flareconverter.models.MimeType
 import com.galacticai.flareconverter.models.ShareInfo
-import com.galacticai.flareconverter.models.mimes.MimeType
-import com.galacticai.flareconverter.models.mimes.MimeTypeUtils
-import com.galacticai.flareconverter.ui.theme.GalacticTheme
+import com.galacticai.flareconverter.ui.options.ffmpegOptions
+import com.galacticai.flareconverter.ui.themes.GalacticTheme
 import com.galacticai.flareconverter.util.AppDefaults.clearInputDir
 import com.galacticai.flareconverter.util.AppDefaults.clearOutputDir
 import com.galacticai.flareconverter.util.AppDefaults.inputDir
 import com.galacticai.flareconverter.util.Consistent
-import com.galacticai.flareconverter.util.settings.Setting
+import com.galacticai.flareconverter.util.MimeTypeUtils
+import com.galacticai.flareconverter.util.MimeTypeUtils.outMimeSetting
 import global.common.IOUtils.mime
 import global.common.models.FutureValue
 import global.common.ui.ExpandableGroup
@@ -88,15 +91,16 @@ class ConvertActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ShareActivityContent() {
     GalacticTheme {
-        BottomSheetScaffold(
-            sheetContent = { SheetContent() },
-            sheetDragHandle = { SheetTitle() },
-            sheetShape = Consistent.shapeTop,
-        ) { DebugInfo() }
+        Scaffold {
+            Column(Modifier.padding(it)) {
+                SheetTitle()
+                //DebugInfo()
+                SheetContent()
+            }
+        }
     }
 }
 
@@ -124,7 +128,7 @@ private fun SheetContent() {
     val inMime by remember(shareInfo) {
         derivedStateOf {
             val m = shareInfo?.mime ?: return@derivedStateOf null
-            MimeTypeUtils.getSupportedOrNew(m)
+            MimeTypeUtils.getSupported(m, true)
         }
     }
     //! not using ObjectSetting.rememberObject()
@@ -132,11 +136,11 @@ private fun SheetContent() {
     var outMime by remember(inMime) { mutableStateOf<MimeType?>(null) }
     LaunchedEffect(inMime) {
         val m = inMime ?: return@LaunchedEffect
-        outMime = Setting.LastSelectedMime(m.mime).getObject(activity)
+        outMime = m.outMimeSetting.getObject(activity)
     }
     fun saveOutMime(v: MimeType) = runBlocking(Dispatchers.IO) {
         val m = inMime ?: return@runBlocking
-        Setting.LastSelectedMime(m.mime).setObject(activity, v)
+        m.outMimeSetting.setObject(activity, v)
         outMime = v
     }
 
@@ -159,7 +163,7 @@ private fun SheetContent() {
         }
     }
 
-    Column {
+    Column(Modifier.fillMaxHeight()) {
         AnimatedContent(targetState = inFileFuture, label = "inFileInfo_Animation") {
             when (it) {
                 is FutureValue.Running -> {
@@ -193,40 +197,44 @@ private fun SheetContent() {
             }
         }
 
-        AnimatedVisibility(visible = canConvert) {
-            val expandedMimesState = rememberSaveable(inMime) { mutableStateOf(inMime == null) }
-            val expandedMimes by expandedMimesState
+        AnimatedVisibility(visible = canConvert, Modifier.weight(1f)) {
+            val expandedOptionsState = rememberSaveable { mutableStateOf(false) }
+            val expandedOptions by expandedOptionsState
+            val frameAlpha by animateFloatAsState(
+                if (expandedOptions) .5f else 1f,
+                label = "FrameAlpha_Animation"
+            )
 
             Column(Modifier.padding(horizontal = Consistent.padRegular)) {
                 Surface(
                     shape = Consistent.shape,
                     modifier = Modifier
                         .padding(vertical = Consistent.padRegular)
-                        .heightIn(),
+                        .weight(1f)
+                        .graphicsLayer(alpha = frameAlpha)
+                        .then(if (frameAlpha > .5f) Modifier.heightIn(max = 100.dp) else Modifier),
                     //TODO: click image to show info
                 ) {
-                    @Suppress("LocalVariableName")
                     AnimatedContent(
-                        targetState = inFileFrameFuture to expandedMimes,
+                        targetState = inFileFrameFuture,
                         label = "inFileFrame_Animation",
                         transitionSpec = { fadeIn() togetherWith fadeOut() }
-                    ) { inFileFrameFuture_expandedMimes ->
-                        val (frame, expanded) = inFileFrameFuture_expandedMimes
-                        when (frame) {
+                    ) { inFileFrameFuture ->
+                        when (inFileFrameFuture) {
                             is FutureValue.Pending,
-                            is FutureValue.Running -> CircularProgressIndicator()
+                            is FutureValue.Running -> CircularProgressIndicator(Modifier.fillMaxWidth())
 
-                            is FutureValue.Failed.Error -> Text(frame.error.toString())
+                            is FutureValue.Failed.Error -> Text(inFileFrameFuture.error.toString())
 
                             is FutureValue.Finished -> {
                                 Image(
-                                    rememberAsyncImagePainter(inFileFrameFuture!!.finishedValue!!.absolutePath),
+                                    rememberAsyncImagePainter(inFileFrameFuture.finishedValue!!.absolutePath),
                                     null,
                                     alignment = Alignment.Center,
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .heightIn(max = (if (expanded) 100 else 500).dp),
+                                        .heightIn(max = 500.dp),
                                 )
                             }
                         }
@@ -234,22 +242,29 @@ private fun SheetContent() {
                 }
 
                 Column(Modifier.padding(Consistent.padRegular)) {
-                    Text("From: ${inMime!!.mime}")
+                    Text("From: ${inMime!!.dashed}")
                     Text(
-                        "To: " + (outMime?.mime ?: "(Not selected...)"),
+                        "To: " + (outMime?.dashed ?: "(Not selected...)"),
                         color = colorResource(R.color.secondary)
                     )
                 }
 
                 ExpandableGroup(
                     modifier = Modifier.padding(Consistent.padRegular),
-                    title = outMime?.name ?: "Select target format:",
-                    expand = expandedMimesState,
-                    contentHeight = 300.dp,
-                    items = convertibleMimesList(shareInfo!!.mime, outMime) {
-                        saveOutMime(it)
-                        expandedMimesState.value = false
-                    }
+                    title = "Options",
+                    expand = expandedOptionsState,
+                    contentHeight = 400.dp,
+                    items = listOf<ExpandableGroupItemFactory> { p ->
+                        ExpandableGroup(
+                            modifier = Modifier.padding(p),
+                            title = if (outMime == null) "Select target format:" else ("Convert to: " + outMime?.dashed),
+                            contentHeight = 200.dp,
+                            items = convertibleMimesList(shareInfo!!.mime, outMime) {
+                                saveOutMime(it)
+                                expandedOptionsState.value = false
+                            }
+                        )
+                    } + outMime!!.ffmpegOptions
                 )
             }
         }
@@ -303,7 +318,7 @@ private fun convertibleMimesList(
     val convertibleList = MimeTypeUtils.getConvertibleList(mime)
         ?: return emptyList()
     return convertibleList.map {
-        return@map { padding, _ ->
+        return@map { p ->
             val isSelected by remember(outMime) { derivedStateOf { outMime?.mime == it.mime } }
             AnimatedContent(
                 targetState = isSelected,
@@ -318,7 +333,7 @@ private fun convertibleMimesList(
                     ),
                 ) {
                     Row(
-                        modifier = Modifier.padding(padding),
+                        modifier = Modifier.padding(p),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         val iconMod = Modifier
@@ -359,6 +374,8 @@ private fun convertibleMimesList(
         }
     }
 }
+
+private val MimeType.dashed get() = "$category — $name"
 
 @Composable
 private fun DebugInfo() {

@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.galacticai.flareconverter.ui.theme.GalacticTheme
+import com.galacticai.flareconverter.ui.themes.GalacticTheme
 import org.json.JSONObject
 import org.junit.Rule
 import org.junit.Test

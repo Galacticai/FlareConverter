@@ -7,6 +7,10 @@ open class BitValue(
     val value: Float,
     val unit: BitUnit
 ) {
+    init {
+        assert(value >= 0f)
+    }
+
     fun toString(maxFractionDigits: Int): String {
         val formatted = NumberFormat.getInstance().apply {
             maximumFractionDigits = maxFractionDigits

@@ -3,8 +3,7 @@ package com.galacticai.flareconverter.models
 import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
-import com.galacticai.flareconverter.models.mimes.MimeType
-import com.galacticai.flareconverter.models.mimes.MimeTypeUtils
+import com.galacticai.flareconverter.util.MimeTypeUtils
 import global.common.ActivityUtil.getParcel
 import global.common.IOUtils.extensionFromMime
 

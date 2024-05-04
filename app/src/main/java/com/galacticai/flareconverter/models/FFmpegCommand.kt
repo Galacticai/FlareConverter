@@ -1,6 +1,7 @@
 package com.galacticai.flareconverter.models
 
 import global.common.models.Command
+import global.common.models.bitvalue.BitValue
 
 
 class FFmpegCommand : Command {
@@ -83,6 +84,9 @@ class FFmpegCommand : Command {
     fun scale(width: Int, height: Int) =
         filterVideo("scale=$width:$height")
 
+    fun crop(x: Int, y: Int, width: Int, height: Int) =
+        filterVideo("crop=$x:$y:$width:$height")
+
     fun speed(value: Float) =
         filterVideo("setpts=$value*PTS")
 
@@ -109,11 +113,11 @@ class FFmpegCommand : Command {
     fun crf(value: Int) =
         apply { arg("crf", value.toString()) }
 
-    fun hideBanner() =
-        apply { arg("hide_banner") }
+    // fun hideBanner() = apply { arg("hide_banner") }
 
-//    fun copy() =
-//        apply { arg("copy") }
+    fun maxSize(value: BitValue) = maxSize(value.toString())
+    fun maxSize(value: String) =
+        apply { arg("fs", value) }
 
 
     companion object {
@@ -130,11 +134,3 @@ class FFmpegCommand : Command {
         }
     }
 }
-
-//? Color Reduction: -vf palettegen & -vf paletteuse
-//? Looping: -ignore_loop 0 -r 10
-//? Crop: -vf crop=w:h:x:y
-//? Speed: -vf "setpts=PTS/2"
-//? Add Text: -vf "drawtext=text='Your Text'"
-//? Add Watermark: -i watermark.png -filter_complex "overlay=W-w-10:H-h-10"
-//? Set Start Time: -ss start_time

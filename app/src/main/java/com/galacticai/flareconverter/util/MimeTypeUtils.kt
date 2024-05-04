@@ -1,7 +1,8 @@
-package com.galacticai.flareconverter.models.mimes
+package com.galacticai.flareconverter.util
 
-import com.galacticai.flareconverter.models.mimes.MimeType.Companion.animated
-import com.galacticai.flareconverter.models.mimes.MimeType.Quicktime
+import com.galacticai.flareconverter.models.MimeType
+import com.galacticai.flareconverter.models.MimeType.Companion.animated
+import com.galacticai.flareconverter.models.MimeType.Quicktime
 import global.common.IOUtils.extensionFromMime
 import global.common.IOUtils.mime
 import java.io.File
@@ -69,14 +70,6 @@ object MimeTypeUtils {
             else null
     }
 
-    fun getSupportedOrNew(mimeString: String): MimeType? {
-        val (category, name) = getMimeParts(mimeString)
-            ?: return null
-        return MimeType.all
-            .find { it.category == category && it.name == name }
-            ?: MimeType(category, name)
-    }
-
     /** Get the [MimeType] from the given [mimeString] */
     fun get(mimeString: String): MimeType? {
         val (category, name) = getMimeParts(mimeString)
@@ -85,4 +78,7 @@ object MimeTypeUtils {
         return if (extension == null) MimeType(category, name)
         else MimeType(category, name, extension)
     }
+
+    /** Get the [Settings.OutMime] for this [MimeType] */
+    val MimeType.outMimeSetting get() = Settings.OutMime(this)
 }

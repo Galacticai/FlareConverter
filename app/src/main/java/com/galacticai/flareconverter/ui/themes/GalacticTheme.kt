@@ -1,4 +1,4 @@
-package com.galacticai.flareconverter.ui.theme
+package com.galacticai.flareconverter.ui.themes
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets

@@ -1,13 +1,10 @@
 package global.common.models
 
 import org.json.JSONObject
+import java.io.Serializable
 
-/** Can be converted into a [JSONObject] */
-interface Jsonable {
-    fun toJson(): JSONObject
-}
-
-/** Can be converted into a [String] through [Jsonable.toJson] */
-abstract class JsonableString : Jsonable {
-    fun toJsonString(): String = toJson().toString()
+/** Can be converted into a [JSONObject] and to a json [String] */
+abstract class Jsonable : Serializable {
+    abstract fun toJson(): JSONObject
+    override fun toString() = toJson().toString()
 }

@@ -10,9 +10,9 @@ import androidx.lifecycle.viewModelScope
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.StatisticsCallback
 import com.galacticai.flareconverter.models.FFmpegCommand
+import com.galacticai.flareconverter.models.MimeType
 import com.galacticai.flareconverter.models.ShareInfo
 import com.galacticai.flareconverter.models.exceptions.InvalidLaunchCommand
-import com.galacticai.flareconverter.models.mimes.MimeType
 import com.galacticai.flareconverter.util.AppDefaults.canShareFile
 import com.galacticai.flareconverter.util.AppDefaults.fileprovider
 import com.galacticai.flareconverter.util.AppDefaults.inputDir
@@ -73,7 +73,7 @@ class ConvertActivityVM : ViewModel() {
             val mimeCategory = info.mime.split('/')[0]
             when (mimeCategory) {
                 MimeType.IMAGE -> inFileFrameLive.postValue(FutureValue.Finished(inputFile))
-                MimeType.VIDEO -> MediaUtils.getVideoFrame(inputFile, live = inFileFrameLive)
+                MimeType.VIDEO -> MediaUtils.postVideoFrame(inputFile, live = inFileFrameLive)
                 else -> inFileFrameLive.postValue(
                     FutureValue.Failed.Error(
                         IllegalStateException("Unsupported mime type: ${info.mime}")
@@ -146,5 +146,18 @@ class ConvertActivityVM : ViewModel() {
         context.startActivity(chooser)
         return chooser
     }
+
+    /** Key is the [MimeType.category] */
+    val ffmpegOptions: Map<String, *> =
+        mapOf(
+            MimeType.IMAGE to listOf(
+                FFmpegCommand::startTime,
+                FFmpegCommand::endTime,
+                FFmpegCommand::bitrateVideo,
+            ),
+            MimeType.VIDEO to listOf(
+
+            ),
+        )
 }
 

@@ -1,4 +1,4 @@
-package com.galacticai.flareconverter.util.settings
+package com.galacticai.flareconverter.models.settings
 
 import android.content.Context
 import androidx.compose.runtime.Composable
@@ -17,11 +17,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.galacticai.flareconverter.models.mimes.MimeType
-import com.galacticai.flareconverter.models.mimes.MimeTypeUtils
-import com.galacticai.flareconverter.models.mimes.MimeTypeUtils.isMimeType
 import kotlinx.coroutines.flow.firstOrNull
-import org.json.JSONObject
 
 const val SETTINGS = "settings"
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = SETTINGS)
@@ -30,14 +26,7 @@ open class Setting<T>(
     val keyName: String,
     val defaultValue: T,
 ) {
-    companion object {
-        val entries
-            get() = listOf<Setting<*>>(
-                // might remove
-            )
 
-        suspend fun restoreAll(c: Context) = entries.forEach { it.restoreDefault(c) }
-    }
 
     val key = when (defaultValue) {
         is Boolean -> booleanPreferencesKey(keyName)
@@ -76,19 +65,5 @@ open class Setting<T>(
             else remember(keys) { this.asState<T>(context) }
         LaunchedEffect(Unit) { setting.setWithoutSaving(get(context)) }
         return setting
-    }
-
-    /** [ObjectSetting] of the last destination [MimeType] for the given mime type
-     * @param mime source mime type */
-    class LastSelectedMime(mime: String) : ObjectSetting<MimeType>(
-        keyName = "LastSelectedMime_${mime.split('/')[0]}",
-        defaultObject = MimeTypeUtils.getConvertibleList(mime)!!.first()
-    ) {
-        init {
-            assert(mime.isMimeType)
-        }
-
-        override suspend fun getObject(context: Context) =
-            MimeType.fromJson(JSONObject(get(context)))
     }
 }

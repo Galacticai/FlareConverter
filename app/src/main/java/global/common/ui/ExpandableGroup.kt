@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,10 +41,40 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 typealias ExpandableGroupItemFactory =
-        @Composable (
-            itemPadding: PaddingValues,
-            index: Int,
-        ) -> Unit
+        @Composable (itemPadding: PaddingValues) -> Unit
+
+@Composable
+fun ExpandableGroup(
+    title: String,
+    modifier: Modifier = Modifier,
+    expand: MutableState<Boolean> = rememberSaveable { mutableStateOf(false) },
+    onExpandChanged: ((Boolean) -> Unit)? = null,
+    withDivider: Boolean = true,
+    radius: Dp = 20.dp,
+    padding: Dp = 20.dp,
+    contentHeight: Dp? = null,
+    titleFontWeightExpanded: FontWeight = FontWeight.W100,
+    titleFontWeightCollapsed: FontWeight = FontWeight.W900,
+    contentBackground: Color = MaterialTheme.colorScheme.background,
+    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    item: ExpandableGroupItemFactory
+) {
+    ExpandableGroup(
+        title,
+        modifier,
+        expand,
+        onExpandChanged,
+        withDivider,
+        radius,
+        padding,
+        contentHeight,
+        titleFontWeightExpanded,
+        titleFontWeightCollapsed,
+        contentBackground,
+        containerColor,
+        listOf(item)
+    )
+}
 
 @Composable
 fun ExpandableGroup(
@@ -137,19 +168,23 @@ fun ExpandableGroup(
                                     color = containerColor
                                 )
                             }
-                            itemView(itemPadding, i)
+                            itemView(itemPadding)
                         }
 
-                        fun itemPadding(i: Int) = PaddingValues(
-                            start = padding, end = padding,
-                            top = if (i == 0) padding else padding / 2,
-                            bottom = if (i == items.lastIndex) padding else padding / 2
-                        )
+                        fun itemPadding(i: Int): PaddingValues {
+                            val top = if (i == 0) padding else padding / 2
+                            val bottom = if (i == items.lastIndex) padding else padding / 2
+                            return PaddingValues(
+                                start = padding, end = padding,
+                                top = top,
+                                bottom = bottom
+                            )
+                        }
 
                         if (items.size == 1) {
                             Box(
                                 modifier = if (contentHeight == null) Modifier
-                                else Modifier.height(contentHeight)
+                                else Modifier.heightIn(max = contentHeight)
                             ) {
                                 content(0, items[0], itemPadding(0))
                             }
@@ -161,7 +196,7 @@ fun ExpandableGroup(
                                     }
                                 }
                             } else {
-                                LazyColumn(modifier = Modifier.height(contentHeight)) {
+                                LazyColumn(modifier = Modifier.heightIn(max = contentHeight)) {
                                     items.forEachIndexed { i, itemView ->
                                         item { content(i, itemView, itemPadding(i)) }
                                     }
@@ -185,22 +220,22 @@ fun PreviewExpandableGroup() {
         ExpandableGroup(
             title = "Title", contentHeight = 100.dp,
             items = listOf(
-                { _, _ -> Text("Item 1") },
-                { _, _ -> Text("Item 2") },
-                { _, _ -> Text("Item 3") },
-                { _, _ -> Text("Item 4") },
-                { _, _ -> Text("Item 5") },
+                { Text("Item 1") },
+                { Text("Item 2") },
+                { Text("Item 3") },
+                { Text("Item 4") },
+                { Text("Item 5") },
             )
         )
         Spacer(modifier = Modifier.height(10.dp))
         ExpandableGroup(
             title = "Title",
             items = listOf(
-                { _, _ -> Text("Item 1") },
-                { _, _ -> Text("Item 2") },
-                { _, _ -> Text("Item 3") },
-                { _, _ -> Text("Item 4") },
-                { _, _ -> Text("Item 5") },
+                { Text("Item 1") },
+                { Text("Item 2") },
+                { Text("Item 3") },
+                { Text("Item 4") },
+                { Text("Item 5") },
             )
         )
     }

@@ -1,4 +1,4 @@
-package com.galacticai.flareconverter.models.mimes
+package com.galacticai.flareconverter.models
 
 import global.common.models.Jsonable
 import org.json.JSONArray
@@ -12,7 +12,7 @@ open class MimeType(
     val category: String,
     val name: String,
     vararg val extensions: String,
-) : Jsonable {
+) : Jsonable() {
 
     /** Get the mime type [String] as "[category]/[name]" */
     val mime get() = "$category/$name"
