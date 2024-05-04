@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     //implementation(libs.coil)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.junit.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.ui.test.junit4)
