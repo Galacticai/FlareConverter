@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors -->
+    <color name="primary">@color/galactic_blue_600</color>
+    <color name="onPrimary">@color/galactic_blue_50</color>
+    <color name="primaryContainer">@color/galactic_blue_light_100</color>
+    <color name="onPrimaryContainer">@color/galactic_blue_900</color>
+
+    <!-- Secondary Colors -->
+    <color name="secondary">@color/galactic_yellow_dark_500</color>
+    <color name="onSecondary">@color/galactic_yellow_100</color>
+    <color name="secondaryContainer">@color/galactic_yellow_100</color>
+    <color name="onSecondaryContainer">@color/galactic_yellow_dark_900</color>
+
+    <!-- Background Colors -->
+    <color name="background">@color/galactic_blue_50</color>
+    <color name="onBackground">@color/galactic_blue_darker</color>
+
+    <!-- Surface Colors -->
+    <color name="surface">@color/galactic_blue_100</color>
+    <color name="onSurface">@color/galactic_blue_darker</color>
+
+    <!-- Other Colors -->
+    <color name="error">#ba1a1a</color>
+    <color name="onError">@color/white</color>
+    <color name="errorContainer">#ffdad6</color>
+    <color name="onErrorContainer">#410002</color>
+
+    <color name="success">#1aba1a</color>
+    <color name="onSuccess">@color/white</color>
+    <color name="successContainer">#d6ffda</color>
+    <color name="onSuccessContainer">#024100</color>
+
+    <color name="warning">#ba911a</color>
+    <color name="onWarning">@color/black</color>
+    <color name="warningContainer">#fff9d6</color>
+    <color name="onWarningContainer">#412e00</color>
+
+    <color name="black">#000</color>
+    <color name="white">#fff</color>
+    <color name="transparent">#0000</color>
+
+
+    <!-- Galactic Blue -->
+    <color name="galactic_blue">@color/galactic_blue_900</color>
+    <color name="galactic_blue_50">#e5e6ed</color>
+    <color name="galactic_blue_100">#bec1d5</color>
+    <color name="galactic_blue_200">#9499b8</color>
+    <color name="galactic_blue_300">#6c739b</color>
+    <color name="galactic_blue_400">#505788</color>
+    <color name="galactic_blue_500">#343c76</color>
+    <color name="galactic_blue_600">#2f356e</color>
+    <color name="galactic_blue_700">#272d64</color>
+    <color name="galactic_blue_800">#202458</color>
+    <color name="galactic_blue_900">#141541</color> <!-- seed -->
+    <color name="galactic_blue_dark">#121220</color>
+    <color name="galactic_blue_darker">#0E0E12</color>
+    <!-- Galactic Blue Light -->
+    <color name="galactic_blue_light">@color/galactic_blue_light_500</color>
+    <color name="galactic_blue_light_50">#eaecfb</color>
+    <color name="galactic_blue_light_100">#c9cff4</color>
+    <color name="galactic_blue_light_200">#a5b0ed</color>
+    <color name="galactic_blue_light_300">#7f90e6</color>
+    <color name="galactic_blue_light_400">#6176e0</color>
+    <color name="galactic_blue_light_500">#435cd9</color> <!-- seed -->
+    <color name="galactic_blue_light_600">#3d53ce</color>
+    <color name="galactic_blue_light_700">#3348c1</color>
+    <color name="galactic_blue_light_800">#2a3eb6</color>
+    <color name="galactic_blue_light_900">#1a2aa2</color>
+
+    <!-- Galactic Yellow -->
+    <color name="galactic_yellow">@color/galactic_yellow_100</color>
+    <color name="galactic_yellow_50">#fff0d6</color>
+    <color name="galactic_yellow_100">#fdd99b</color> <!-- seed -->
+    <color name="galactic_yellow_200">#f7c15f</color>
+    <color name="galactic_yellow_300">#f1a81d</color>
+    <color name="galactic_yellow_400">#ed9600</color>
+    <color name="galactic_yellow_500">#ea8400</color>
+    <color name="galactic_yellow_600">#e87800</color>
+    <color name="galactic_yellow_700">#e36800</color>
+    <color name="galactic_yellow_800">#de5600</color>
+    <color name="galactic_yellow_900">#d63600</color>
+    <!-- Galactic Yellow Dark -->
+    <color name="galactic_yellow_dark">@color/galactic_yellow_dark_500</color>
+    <color name="galactic_yellow_dark_50">#ffe8ba</color>
+    <color name="galactic_yellow_dark_100">#eac698</color>
+    <color name="galactic_yellow_dark_200">#caa373</color>
+    <color name="galactic_yellow_dark_300">#a8824c</color>
+    <color name="galactic_yellow_dark_400">#8f682e</color>
+    <color name="galactic_yellow_dark_500">#76500e</color> <!-- seed -->
+    <color name="galactic_yellow_dark_600">#6c4608</color>
+    <color name="galactic_yellow_dark_700">#5d3a00</color>
+    <color name="galactic_yellow_dark_800">#522c00</color>
+    <color name="galactic_yellow_dark_900">#441d00</color>
+</resources>
