@@ -107,9 +107,7 @@ private fun ShareActivityContent() {
 @Composable
 private fun SheetTitle() {
     Text(
-        modifier = Modifier.padding(
-            horizontal = Consistent.padMedium, vertical = Consistent.padRegular,
-        ),
+        modifier = Modifier.padding(Consistent.padMedium, Consistent.padRegular),
         text = stringResource(R.string.app_name),
         fontSize = 24.sp,
     )
@@ -197,7 +195,14 @@ private fun SheetContent() {
             }
         }
 
-        AnimatedVisibility(visible = canConvert, Modifier.weight(1f)) {
+        AnimatedContent(
+            targetState = canConvert,
+            label = "ConvertContent_Animation",
+            modifier = Modifier.weight(1f)
+        ) {
+            //? Keep the container to fill the space (by weight(1f)) in all cases
+            if (!it) return@AnimatedContent
+
             val expandedOptionsState = rememberSaveable { mutableStateOf(false) }
             val expandedOptions by expandedOptionsState
             val frameAlpha by animateFloatAsState(
