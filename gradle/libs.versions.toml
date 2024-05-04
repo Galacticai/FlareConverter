@@ -21,6 +21,7 @@ uiAndroid = "1.6.5"
 uiToolingPreviewAndroid = "1.6.5"
 preference = "1.2.1"
 preferenceKtx = "1.2.1"
+junitKtx = "1.1.5"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
@@ -47,6 +48,7 @@ androidx-ui-android = { group = "androidx.compose.ui", name = "ui-android", vers
 androidx-ui-tooling-preview-android = { group = "androidx.compose.ui", name = "ui-tooling-preview-android", version.ref = "uiToolingPreviewAndroid" }
 androidx-preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
 androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceKtx" }
+androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
