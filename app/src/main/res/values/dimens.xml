@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="paddingTiny">1dp</dimen>
+    <dimen name="paddingSmallX">2dp</dimen>
+    <dimen name="paddingSmall">5dp</dimen>
+    <dimen name="padding">10dp</dimen>
+    <dimen name="paddingLarge">20dp</dimen>
+    <dimen name="paddingLargeX">30dp</dimen>
+    <dimen name="paddingHuge">40dp</dimen>
+
+    <dimen name="bodyPaddingHorizontal">@dimen/padding</dimen>
+    <dimen name="fadingEdgeLength">40dp</dimen>
+</resources>
