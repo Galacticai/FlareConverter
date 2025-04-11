@@ -13,6 +13,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -65,6 +66,8 @@ import com.galacticai.flareconverter.ui.themes.GalacticTheme
 import com.galacticai.flareconverter.util.AppDefaults.clearInputDir
 import com.galacticai.flareconverter.util.AppDefaults.clearOutputDir
 import com.galacticai.flareconverter.util.AppDefaults.inputDir
+import com.galacticai.flareconverter.util.AppDefaults.openFile
+import com.galacticai.flareconverter.util.AppDefaults.share
 import com.galacticai.flareconverter.util.Consistent
 import com.galacticai.flareconverter.util.MimeTypeUtils
 import com.galacticai.flareconverter.util.MimeTypeUtils.outMimeSetting
@@ -232,15 +235,24 @@ private fun SheetContent() {
                             is FutureValue.Failed.Error -> Text(inFileFrameFuture.error.toString())
 
                             is FutureValue.Finished -> {
-                                Image(
-                                    rememberAsyncImagePainter(inFileFrameFuture.finishedValue!!.absolutePath),
-                                    null,
-                                    alignment = Alignment.Center,
-                                    contentScale = ContentScale.Crop,
+                                Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .heightIn(max = 500.dp),
-                                )
+                                        .heightIn(max = 500.dp)
+                                        .clickable {
+                                            activity.openFile(inFileFrameFuture.finishedValue!!)
+                                        }
+                                ) {
+                                    Image(
+                                        rememberAsyncImagePainter(inFileFrameFuture.finishedValue!!.absolutePath),
+                                        null,
+                                        alignment = Alignment.Center,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .fillMaxHeight(),
+                                    )
+                                }
                             }
                         }
                     }
@@ -304,7 +316,7 @@ private fun SheetContent() {
                         }
                     ) {
                         converting = false
-                        vm.share(activity, it.value, outMime)
+                        activity.share(it.value, outMime)
                     }
                 }
             ) {

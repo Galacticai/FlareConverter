@@ -3,7 +3,6 @@ package com.galacticai.flareconverter.ui
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
-import androidx.core.content.FileProvider
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,14 +12,11 @@ import com.galacticai.flareconverter.models.FFmpegCommand
 import com.galacticai.flareconverter.models.MimeType
 import com.galacticai.flareconverter.models.ShareInfo
 import com.galacticai.flareconverter.models.exceptions.InvalidLaunchCommand
-import com.galacticai.flareconverter.util.AppDefaults.canShareFile
-import com.galacticai.flareconverter.util.AppDefaults.fileprovider
 import com.galacticai.flareconverter.util.AppDefaults.inputDir
 import com.galacticai.flareconverter.util.AppDefaults.outputDir
 import com.galacticai.flareconverter.util.MediaUtils
 import global.common.IOUtils.child
 import global.common.IOUtils.copyToFile
-import global.common.IOUtils.mime
 import global.common.models.FutureValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -128,24 +124,6 @@ class ConvertActivityVM : ViewModel() {
         }
     }
 
-    /** Share the converted file ([outFile])
-     * @param mimeType optional mime type to use when sharing otherwise will try to infer it using [File.mime] */
-    fun share(context: Context, outFile: File, mimeType: MimeType? = null): Intent {
-        if (!context.canShareFile(outFile)) {
-            throw IllegalStateException("File cannot be shared: $outFile")
-        }
-
-        val mime = mimeType?.toString() ?: outFile.mime
-        val uri = FileProvider.getUriForFile(context, context.fileprovider, outFile)
-        val send = Intent(Intent.ACTION_SEND).apply {
-            type = mime
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            putExtra(Intent.EXTRA_STREAM, uri)
-        }
-        val chooser = Intent.createChooser(send, "Share via")
-        context.startActivity(chooser)
-        return chooser
-    }
 
     /** Key is the [MimeType.category] */
     val ffmpegOptions: Map<String, *> =

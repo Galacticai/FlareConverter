@@ -37,16 +37,12 @@ open class Setting<T>(
         else -> throw IllegalArgumentException("Unsupported type")
     }
 
-    suspend fun get(context: Context): T = context
-        .dataStore.data
-        .firstOrNull()?.get(key)
-        ?: defaultValue
+    suspend fun get(context: Context): T =
+        context.dataStore.data.firstOrNull()?.get(key)
+            ?: defaultValue
 
     suspend fun set(context: Context, value: T) {
-        context.dataStore.edit {
-            val k = key
-            it[k] = value
-        }
+        context.dataStore.edit { it[key] = value }
     }
 
     suspend fun restoreDefault(context: Context) = set(context, defaultValue)
@@ -56,11 +52,11 @@ open class Setting<T>(
 
     /** this [Setting] as a [MutableState]  (updating the state will update the [Setting] value) */
     @Composable
-    fun rememberValue(saveable: Boolean = false, vararg keys: Any?): MutableState<T> {
+    fun rememberValue(saveable: Boolean = false, vararg inputs: Any?): MutableState<T> {
         val context = LocalContext.current
         val setting =
-            if (saveable) rememberSaveable(keys) { this.asState<T>(context) }
-            else remember(keys) { this.asState<T>(context) }
+            if (saveable) rememberSaveable(inputs) { this.asState<T>(context) }
+            else remember(inputs) { this.asState<T>(context) }
         LaunchedEffect(Unit) { setting.setWithoutSaving(get(context)) }
         return setting
     }

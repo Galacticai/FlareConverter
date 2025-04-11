@@ -54,7 +54,7 @@ fun NumberInputView(
                     n = it.toIntOrNull() ?: 0
                     onChanged?.invoke(n)
                 },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
             Spacer(Modifier.width(Consistent.padRegular))
             IconButton({
