@@ -19,7 +19,7 @@ import coil.compose.AsyncImage
 import com.galacticai.flareconverter.models.MediaFile
 import com.galacticai.flareconverter.models.MediaFileBase
 import com.galacticai.flareconverter.util.Modifiers.alphaGradient
-import com.galacticai.flareconverter.util.ff_command.FFGenerate
+import com.galacticai.flareconverter.util.media.FFGenerate
 import global.common.models.progressive.Progressive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

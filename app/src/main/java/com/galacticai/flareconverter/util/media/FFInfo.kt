@@ -1,4 +1,4 @@
-package com.galacticai.flareconverter.util.ff_command
+package com.galacticai.flareconverter.util.media
 
 import android.util.Log
 import com.galacticai.flareconverter.models.MimeType
@@ -71,7 +71,7 @@ object FFInfo {
         for (stream in streams!!) {
             val index = stream.index ?: continue
             val codecNameKey = stream.codecName ?: continue
-            val codec = FFStatic.CODECS_AVAILABLE?.get(codecNameKey) ?: continue
+            val codec = MediaCapabilities.FFmpeg.CODECS?.get(codecNameKey) ?: continue
             if (!codec.canDecode) continue
             val context = streamContexts[index]
             val isGroup = context?.isGroup ?: false
@@ -95,8 +95,8 @@ object FFInfo {
             val sampleRate = stream.sampleRate
 
             /** ⚠️ images are also categorized as [CodecType.Video] */
-            val isVideo = codecNameKey in FFStatic.getCodecsOf(CodecType.Video)!!
-            val isAudio = codecNameKey in FFStatic.getCodecsOf(CodecType.Audio)!!
+            val isVideo = codecNameKey in MediaCapabilities.FFmpeg.getCodecsOf(CodecType.Video)!!
+            val isAudio = codecNameKey in MediaCapabilities.FFmpeg.getCodecsOf(CodecType.Audio)!!
             val isSubtitle = codec.type == CodecType.Subtitle || stream.codecType == "subtitle"
 
             val codecType = when {
@@ -108,17 +108,17 @@ object FFInfo {
 
             val parsed = when (codecType) {
                 CodecType.Video -> {
-//                        Log.d(
-//                            "MediaInfo parseMediaStreams",
-//                            "Video"
-//                                    + "\n | codec = $codec"
-//                                    + "\n | isGroup = $isGroup"
-//                                    + "\n | resolution = $resolution"
-//                                    + "\n | duration = $duration"
-//                                    + "\n | bitrate = $bitrate"
-//                                    + "\n | frameRate = $frameRate"
-//                                    + "\n | frameCount = $frameCount"
-//                        )
+                    // Log.d(
+                    //     "MediaInfo parseMediaStreams",
+                    //     "Video"
+                    //             + "\n | codec = $codec"
+                    //             + "\n | isGroup = $isGroup"
+                    //             + "\n | resolution = $resolution"
+                    //             + "\n | duration = $duration"
+                    //             + "\n | bitrate = $bitrate"
+                    //             + "\n | frameRate = $frameRate"
+                    //             + "\n | frameCount = $frameCount"
+                    // )
                     val maybeImage = listOf(duration, bitrate, frameRate)
                         .any { it == null }
                     if (maybeImage) {
@@ -139,15 +139,15 @@ object FFInfo {
                 }
 
                 CodecType.Audio -> {
-//                        Log.d(
-//                            "MediaInfo parseMediaStreams",
-//                            "Audio"
-//                                    + "\n | codec = $codec"
-//                                    + "\n | isGroup = $isGroup"
-//                                    + "\n | duration = $duration"
-//                                    + "\n | bitrate = $bitrate"
-//                                    + "\n | sampleRate = $sampleRate"
-//                        )
+                    // Log.d(
+                    //     "MediaInfo parseMediaStreams",
+                    //     "Audio"
+                    //             + "\n | codec = $codec"
+                    //             + "\n | isGroup = $isGroup"
+                    //             + "\n | duration = $duration"
+                    //             + "\n | bitrate = $bitrate"
+                    //             + "\n | sampleRate = $sampleRate"
+                    // )
                     ParsedMediaStream.Audio(
                         codec, isGroup,
                         duration ?: continue,
@@ -157,13 +157,13 @@ object FFInfo {
                 }
 
                 CodecType.Subtitle -> {
-//                        Log.d(
-//                            "MediaInfo parseMediaStreams",
-//                            "Subtitle"
-//                                    + "\n | codec = $codec"
-//                                    + "\n | isGroup = $isGroup"
-//                                    + "\n | duration = $duration"
-//                        )
+                    // Log.d(
+                    //     "MediaInfo parseMediaStreams",
+                    //     "Subtitle"
+                    //             + "\n | codec = $codec"
+                    //             + "\n | isGroup = $isGroup"
+                    //             + "\n | duration = $duration"
+                    // )
                     ParsedMediaStream.Subtitle(
                         codec = codec,
                         isGroup = isGroup,
