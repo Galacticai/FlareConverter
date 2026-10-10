@@ -1,6 +1,5 @@
 package com.galacticai.flareconverter.models
 
-import com.galacticai.flareconverter.util.MimeTypeUtils.regex
 import global.common.models.Jsonable
 import global.common.util.IOUtil.mime
 import global.common.util.JsonUtil.toList
@@ -114,11 +113,17 @@ open class MimeType(
     }
 
     companion object {
+
         const val ANYTHING = "*"
         const val VIDEO = "video"
         const val IMAGE = "image"
         const val AUDIO = "audio"
         val categories get() = listOf(IMAGE, VIDEO, AUDIO)
+
+        val regex = Regex(
+            """^(?<category>\*|[a-z0-9\-+.]+)/(?<key>\*|[a-z0-9\-+.]+)$""",
+            RegexOption.IGNORE_CASE
+        )
 
         fun getParts(mimeString: String?): Pair<String, String>? {
             if (mimeString == null) return null

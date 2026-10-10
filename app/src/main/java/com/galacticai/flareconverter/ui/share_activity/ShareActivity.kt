@@ -10,6 +10,7 @@ import com.galacticai.flareconverter.ui.themes.GalacticTheme
 import com.galacticai.flareconverter.util.AppDefaults.clearInputDir
 import com.galacticai.flareconverter.util.AppDefaults.clearOutputDir
 import com.galacticai.flareconverter.util.AppDefaults.inputDir
+import com.galacticai.flareconverter.util.media.MediaCapabilities
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 
@@ -32,12 +33,15 @@ class ShareActivity : AppCompatActivity() {
         clearOutputDir(true)
 
         //? cache the supported codecs and formats
-//        FFUtil.Info.CODECS_AVAILABLE
-//        FFUtil.Info.FORMATS_AVAILABLE
+        MediaCapabilities.FFmpeg.FORMATS
+        MediaCapabilities.FFmpeg.CODECS
+        MediaCapabilities.FFmpeg.ENCODERS
+        MediaCapabilities.Device.CODECS
+        MediaCapabilities.Device.MIMES
 
         vm.shareInfoState.value = helpers.initFile(
             coroutineContext[Job],
-            intent, inputDir, contentResolver
+            intent, inputDir, contentResolver,
         )
     }
 

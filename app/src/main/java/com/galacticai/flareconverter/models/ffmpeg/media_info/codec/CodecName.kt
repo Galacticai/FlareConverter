@@ -1,5 +1,6 @@
 package com.galacticai.flareconverter.models.ffmpeg.media_info.codec
 
+@Deprecated("dynamic instead of this static thingie")
 object CodecName {
     val image = listOf(
         "alias_pix", "apng", "bmp", "dpx", "exr", "fits", "gif", "hdr",
