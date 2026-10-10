@@ -2,21 +2,58 @@ package com.galacticai.flareconverter.util
 
 import global.common.models.Jsonable
 import org.json.JSONObject
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 data class Resolution(
     val width: Int,
     val height: Int
-) : Jsonable() {
+) : Jsonable(), Comparable<Resolution> {
     val widthXHeight get() = "${width}x${height}"
     val aspectRatio get() = width.toFloat() / height
     val pixelCount get() = width * height
     val diagonal get() = sqrt((width * width + height * height).toDouble())
 
+    fun scale(ratio: Float): Resolution = copy(
+        width = (width * ratio).roundToInt(),
+        height = (height * ratio).roundToInt(),
+    )
+
+    fun maxHeight(value: Int): Resolution =
+            if (height <= value) this
+            else scale(value.toFloat() / height)
+
+    fun maxWidth(value: Int): Resolution =
+            if (width <= value) this
+            else scale(value.toFloat() / width)
+
     override fun toJson() = JSONObject().apply {
         put("width", width)
         put("height", height)
     }
+
+    override fun compareTo(other: Resolution): Int =
+            pixelCount.compareTo(other.pixelCount)
+
+    operator fun plus(other: Resolution) = copy(
+        width = width + other.width,
+        height = height + other.height,
+    )
+
+    operator fun minus(other: Resolution) = copy(
+        width = width - other.width,
+        height = height - other.height,
+    )
+
+    operator fun times(other: Resolution) = copy(
+        width = width * other.width,
+        height = height * other.height,
+    )
+
+    operator fun div(other: Resolution) = copy(
+        width = if (other.width == 0) 0 else (width / other.width),
+        height = if (other.height == 0) 0 else (height / other.height),
+    )
 
     companion object {
         val zero get() = Resolution(0, 0)
@@ -29,10 +66,10 @@ data class Resolution(
         fun fromJsonString(json: String) = fromJson(JSONObject(json))
 
         fun fromWidth(width: Int, ratio: Float) =
-            Resolution(width, (width / ratio).toInt())
+                Resolution(width, (width / ratio).toInt())
 
         fun fromHeight(height: Int, ratio: Float) =
-            Resolution(height, (height / ratio).toInt())
+                Resolution(height, (height / ratio).toInt())
     }
 }
 
