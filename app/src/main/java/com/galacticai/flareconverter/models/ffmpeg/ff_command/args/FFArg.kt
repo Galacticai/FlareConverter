@@ -1,15 +1,27 @@
 package com.galacticai.flareconverter.models.ffmpeg.ff_command.args
 
+import global.common.models.command.Command
+import global.common.util.TextUtil.sentenceCase
+
 sealed class FFArg(
-    val id: Int,
     val order: ArgOrder,
     /** command arg key (not an identifier) */
-    val key: String,
+    val argKey: String,
     val parse: FFArgParserFn,
-    val title: String,
-) {
-    val name: String = javaClass.simpleName
+    title: String? = null,
+) : Comparable<FFArg> {
+    abstract val id: Int
 
+    override fun compareTo(other: FFArg): Int = when {
+        this.order != other.order -> order.compareTo(other.order)
+        else -> id.compareTo(other.id)
+    }
+
+    val key =
+            if (argKey.isBlank()) Command.Argument.Key.empty
+            else Command.Argument.Key(argKey, Command.Argument.PREFIX)
+    val name = this::class.simpleName!!.sentenceCase
+    val title = title ?: name
     override fun toString() = title
 }
 

@@ -8,15 +8,6 @@ import com.galacticai.flareconverter.util.App
 class FFprobeCommand : FFCommand<FFprobeArg> {
     constructor(vararg args: Argument) : super(App.ffprobe, *args)
 
-    override fun arg(arg: FFprobeArg, vararg value: Any) =
-            apply { arg(arg.toKey(), arg.parse(value)) }
-
-    override fun findArg(key: String): FFprobeArg? =
-            FFprobeArg.entries.find { it.key == key }
-
-    override fun sortArgs(arg: FFprobeArg): Int =
-            arg.order.ordinal * 1000 + arg.id
-
     fun version() = apply { arg(FFprobeArg.Version) }
     fun help() = apply { arg(FFprobeArg.Help) }
     fun h() = help()
@@ -101,11 +92,6 @@ class FFprobeCommand : FFCommand<FFprobeArg> {
             apply { arg(FFprobeArg.ShowProtocols) }
 
     companion object {
-        private fun FFprobeArg.toKey() = Argument.Key(
-            this.key,
-            if (this.key.isBlank()) "" else Argument.PREFIX
-        )
-
         fun Map<FFprobeArg, String>.toCommand(
             hideBanner: Boolean = true
         ): FFprobeCommand {

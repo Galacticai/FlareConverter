@@ -19,13 +19,15 @@ import java.io.Serializable
  * @param args The arguments for the executable */
 open class Command(
     val executable: String,
-    open val args: MutableList<Argument> = mutableListOf()
+    protected open val args: MutableList<Argument> = mutableListOf()
 ) : Serializable {
     constructor(target: String, vararg args: Argument)
             : this(target, args.toMutableList())
 
     constructor(target: File, vararg args: Argument)
             : this(target.absolutePath, args.toMutableList())
+
+    open fun arg(arg: Argument) = apply { args.add(arg) }
 
     val tokens: List<String>
         get() = buildList {
@@ -40,15 +42,7 @@ open class Command(
 
     fun build() = toString()
 
-    protected open fun arg(argument: Argument) = apply {
-        args.removeIf { it.key == argument.key }
-        args.add(argument)
-    }
-
-    protected open fun arg(key: Argument.Key, vararg value: String) = arg(Argument(key, *value))
-
-
-    class Argument(
+    open class Argument(
         val key: Key,
         val values: MutableList<String>
     ) : Serializable {
@@ -86,6 +80,7 @@ open class Command(
             override fun toString() = if (name.isBlank()) "" else "${prefix.trim()}${name.trim()}"
 
             companion object {
+                val empty get() = Key("", "")
                 fun String.toKey(prefix: String = PREFIX_DOUBLE) =
                         Key(this, prefix)
             }

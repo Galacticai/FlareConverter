@@ -19,16 +19,7 @@ import kotlin.time.Duration
 class FFmpegCommand : FFCommand<FFmpegArg> {
     constructor(vararg args: Argument) : super(App.ffmpeg, *args)
 
-    override fun arg(arg: FFmpegArg, vararg value: Any) =
-            apply { arg(arg.toKey(), arg.parse(value)) }
-
-    override fun findArg(key: String): FFmpegArg? =
-            FFmpegArg.entries.find { it.key == key }
-
-    override fun sortArgs(arg: FFmpegArg): Int =
-            arg.order.ordinal * 1000 + arg.id
-
-    // ===== Arguments =====
+// ===== Arguments =====
 
     fun version() = apply { arg(FFmpegArg.Version) }
     fun v() = version()
@@ -38,6 +29,7 @@ class FFmpegCommand : FFCommand<FFmpegArg> {
     fun logLevel(value: LogLevel) = apply { arg(FFmpegArg.LogLevel, value.key) }
     fun hideBanner() = apply { arg(FFmpegArg.HideBanner) }
     fun codecs() = apply { arg(FFmpegArg.Codecs) }
+    fun encoders() = apply { arg(FFmpegArg.Encoders) }
     fun formats() = apply { arg(FFmpegArg.Formats) }
 
     fun input(input: String) =
@@ -141,6 +133,7 @@ class FFmpegCommand : FFCommand<FFmpegArg> {
     fun maxSize(value: String) =
             apply { arg(FFmpegArg.MaxSizeByString, value) }
 
+    /** [runStream] with [FFmpegStats] ([onProgressStats]) */
     suspend fun <T> runStreamStats(
         config: RunConfig? = null,
         onFail: (suspend (Throwable) -> Unit)? = null,
@@ -152,11 +145,12 @@ class FFmpegCommand : FFCommand<FFmpegArg> {
         }
         return super.runStream(
             config, onFail,
-            onProgress = { statsBuilder.append(it) },
+            onProgress = { statsBuilder.receiveLine(it) },
             onSuccess,
         )
     }
 
+    /** [runStreamStats] with [flow] */
     suspend fun <T> runFlow(
         flow: MutableStateFlow<Progressive<T>>,
         job: Job? = null,
@@ -206,13 +200,17 @@ class FFmpegCommand : FFCommand<FFmpegArg> {
     }
 
     companion object {
-        private fun FFmpegArg.toKey() = Argument.Key(
-            this.key,
-            if (this.key.isBlank()) "" else Argument.PREFIX
-        )
-
         fun Map<FFmpegArg, String>.toCommand(
+            /**
+             * skip extra noise from the output (like banner / logging)
+             * @see FFmpegArg.HideBanner
+             * @see FFmpegArg.LogLevel
+             */
             minimal: Boolean = true,
+            /**
+             * listen to stats
+             * @see FFmpegArg.Stats
+             */
             progress: Boolean = true,
         ): FFmpegCommand {
             val cmd = FFmpegCommand()

@@ -1,23 +1,22 @@
 package com.galacticai.flareconverter.models.ffmpeg.ff_command.args
 
-import global.common.util.TextUtil.sentenceCase
-
 sealed class FFmpegArg(
-    id: Int,
     order: ArgOrder,
-    key: String,
+    argKey: String,
     parseCmd: FFArgParserFn = FFArgParser.join(" "),
-    title: String = javaClass.simpleName.sentenceCase,
-) : FFArg(id, order, key, parseCmd, title) {
+    title: String? = null,
+) : FFArg(order, argKey, parseCmd, title) {
+
+    override val id = entries.indexOf(this)
 
     companion object {
         fun from(id: Int) = entries.find { id == it.id }
 
         val entries: List<FFmpegArg> by lazy {
             listOf(
-                Version, Help, HideBanner, Codecs, Formats, Progress, Input, FrameCount, FrameRate,
-                SampleRate, Channels, Bitrate, BitrateVideo, BitrateAudio, CodecVideo, CodecAudio,
-                Resolution, DurationByString, DurationByMs, Format, StartTimeByMs,
+                Version, Help, HideBanner, Codecs, Encoders, Formats, Progress, Input, FrameCount,
+                FrameRate, SampleRate, Channels, Bitrate, BitrateVideo, BitrateAudio, CodecVideo,
+                CodecAudio, Resolution, DurationByString, DurationByMs, Format, StartTimeByMs,
                 StartTimeByString, EndTimeByMs, EndTimeByString, Scale, Crop, Speed, Pitch,
                 MetadataByString, MetadataByPairs, MetadataByMap, Preset, Crf, MaxSizeByAmount,
                 MaxSizeByString, Output,
@@ -25,78 +24,78 @@ sealed class FFmpegArg(
         }
     }
 
-    object Version : FFmpegArg(0, ArgOrder.First, "version", FFArgParser.none)
-    object Help : FFmpegArg(1, ArgOrder.First, "h", FFArgParser.none)
-    object HideBanner : FFmpegArg(2, ArgOrder.First, "hide_banner", FFArgParser.none)
-    object Stats : FFmpegArg(3, ArgOrder.First, "stats", FFArgParser.none)
-    object Codecs : FFmpegArg(4, ArgOrder.First, "codecs", FFArgParser.none)
-    object Formats : FFmpegArg(5, ArgOrder.First, "formats", FFArgParser.none)
-    object Progress : FFmpegArg(6, ArgOrder.First, "progress", FFArgParser.none)
+    object Version : FFmpegArg(ArgOrder.First, "version", FFArgParser.none)
+    object Help : FFmpegArg(ArgOrder.First, "h", FFArgParser.none)
+    object HideBanner : FFmpegArg(ArgOrder.First, "hide_banner", FFArgParser.none)
+    object Stats : FFmpegArg(ArgOrder.First, "stats", FFArgParser.none)
+    object Codecs : FFmpegArg(ArgOrder.First, "codecs", FFArgParser.none)
+    object Encoders : FFmpegArg(ArgOrder.First, "encoders", FFArgParser.none)
+    object Formats : FFmpegArg(ArgOrder.First, "formats", FFArgParser.none)
+    object Progress : FFmpegArg(ArgOrder.First, "progress", FFArgParser.none)
 
     /** expects [log level] */
-    object LogLevel : FFmpegArg(7, ArgOrder.First, "v", FFArgParser.single)
+    object LogLevel : FFmpegArg(ArgOrder.First, "v", FFArgParser.single)
 
     /** expects: `[input]` */
-    object Input : FFmpegArg(8, ArgOrder.Input, "i", FFArgParser.single, title = "Convert")
+    object Input : FFmpegArg(ArgOrder.Input, "i", FFArgParser.single, title = "Convert")
 
     /** expects: `[count]` */
-    object FrameCount : FFmpegArg(9, ArgOrder.AfterInput, "vframes", FFArgParser.single)
+    object FrameCount : FFmpegArg(ArgOrder.AfterInput, "vframes", FFArgParser.single)
 
     /** expects: `[fps]` */
-    object FrameRate : FFmpegArg(10, ArgOrder.AfterInput, "r", FFArgParser.single)
+    object FrameRate : FFmpegArg(ArgOrder.AfterInput, "r", FFArgParser.single)
 
     /** expects: `[rate]` */
-    object SampleRate : FFmpegArg(11, ArgOrder.AfterInput, "ar", FFArgParser.single)
+    object SampleRate : FFmpegArg(ArgOrder.AfterInput, "ar", FFArgParser.single)
 
     /** expects: `[count]` */
-    object Channels : FFmpegArg(12, ArgOrder.AfterInput, "ac", FFArgParser.single)
+    object Channels : FFmpegArg(ArgOrder.AfterInput, "ac", FFArgParser.single)
 
     /** expects: `[bitrate]` */
-    object Bitrate : FFmpegArg(13, ArgOrder.AfterInput, "b", FFArgParser.single)
+    object Bitrate : FFmpegArg(ArgOrder.AfterInput, "b", FFArgParser.single)
 
     /** expects: `[bitrate]` */
-    object BitrateVideo : FFmpegArg(14, ArgOrder.AfterInput, "b:v", FFArgParser.single)
+    object BitrateVideo : FFmpegArg(ArgOrder.AfterInput, "b:v", FFArgParser.single)
 
     /** expects: `[bitrate]` */
-    object BitrateAudio : FFmpegArg(15, ArgOrder.AfterInput, "b:a", FFArgParser.single)
+    object BitrateAudio : FFmpegArg(ArgOrder.AfterInput, "b:a", FFArgParser.single)
 
     /** expects: `[codec]` */
-    object CodecVideo : FFmpegArg(16, ArgOrder.AfterInput, "c:v", FFArgParser.single)
-    object CodecAudio : FFmpegArg(17, ArgOrder.AfterInput, "c:a", FFArgParser.single)
+    object CodecVideo : FFmpegArg(ArgOrder.AfterInput, "c:v", FFArgParser.single)
+    object CodecAudio : FFmpegArg(ArgOrder.AfterInput, "c:a", FFArgParser.single)
 
     /** expects: `[width, height]` */
-    object Resolution : FFmpegArg(18, ArgOrder.AfterInput, "s", FFArgParser.join("x", 2))
+    object Resolution : FFmpegArg(ArgOrder.AfterInput, "s", FFArgParser.join("x", 2))
 
     /** expects: `[duration: String]` */
-    object DurationByString : FFmpegArg(19, ArgOrder.AfterInput, "t", FFArgParser.single)
+    object DurationByString : FFmpegArg(ArgOrder.AfterInput, "t", FFArgParser.single)
 
     /** expects: `[milliseconds: Long]` */
-    object DurationByMs : FFmpegArg(20, ArgOrder.AfterInput, "t", FFArgParser.timestamp)
+    object DurationByMs : FFmpegArg(ArgOrder.AfterInput, "t", FFArgParser.timestamp)
 
     /** expects: `[format]` */
-    object Format : FFmpegArg(21, ArgOrder.AfterInput, "f", FFArgParser.single)
+    object Format : FFmpegArg(ArgOrder.AfterInput, "f", FFArgParser.single)
 
     /** expects: `[milliseconds: Long]` */
-    object StartTimeByMs : FFmpegArg(22, ArgOrder.AfterInput, "ss", FFArgParser.timestamp)
+    object StartTimeByMs : FFmpegArg(ArgOrder.AfterInput, "ss", FFArgParser.timestamp)
 
     /** expects: `[time: String]` */
-    object StartTimeByString : FFmpegArg(23, ArgOrder.AfterInput, "ss", FFArgParser.single)
+    object StartTimeByString : FFmpegArg(ArgOrder.AfterInput, "ss", FFArgParser.single)
 
     /** expects: `[milliseconds: Long]` */
-    object EndTimeByMs : FFmpegArg(24, ArgOrder.AfterInput, "to", FFArgParser.timestamp)
+    object EndTimeByMs : FFmpegArg(ArgOrder.AfterInput, "to", FFArgParser.timestamp)
 
     /** expects: `[time: String]` */
-    object EndTimeByString : FFmpegArg(25, ArgOrder.AfterInput, "to", FFArgParser.single)
+    object EndTimeByString : FFmpegArg(ArgOrder.AfterInput, "to", FFArgParser.single)
 
     /** expects: `[width, height]` */
-    object Scale : FFmpegArg(26, ArgOrder.AfterInput, "vf", FFArgParser.filter("scale", ":", 2))
+    object Scale : FFmpegArg(ArgOrder.AfterInput, "vf", FFArgParser.filter("scale", ":", 2))
 
     /** expects: `[width, height, x, y]` */
-    object Crop : FFmpegArg(27, ArgOrder.AfterInput, "vf", FFArgParser.filter("crop", ":", 4))
+    object Crop : FFmpegArg(ArgOrder.AfterInput, "vf", FFArgParser.filter("crop", ":", 4))
 
     /** expects: `[factor: Float]` */
     object Speed : FFmpegArg(
-        26,
         ArgOrder.AfterInput,
         "vf",
         FFArgParser.affix("setpts=" to "*PTS", FFArgParser.single)
@@ -104,7 +103,6 @@ sealed class FFmpegArg(
 
     /** expects: `[factor: Float]` */
     object Pitch : FFmpegArg(
-        27,
         ArgOrder.AfterInput,
         "af",
         FFArgParser.affix(
@@ -113,10 +111,10 @@ sealed class FFmpegArg(
     )
 
     /** expects: `[key=value]` */
-    object MetadataByString : FFmpegArg(28, ArgOrder.AfterInput, "metadata", FFArgParser.join("="))
+    object MetadataByString : FFmpegArg(ArgOrder.AfterInput, "metadata", FFArgParser.join("="))
 
     /** expects: `[key1, value1, key2, value2, ...]` */
-    object MetadataByPairs : FFmpegArg(29, ArgOrder.AfterInput, "metadata", { params ->
+    object MetadataByPairs : FFmpegArg(ArgOrder.AfterInput, "metadata", { params ->
         val n = params.size
         (0 until (n - 1) step 2).joinToString(",") { i ->
             "${params[i]}=${params[i + 1]}"
@@ -124,7 +122,7 @@ sealed class FFmpegArg(
     })
 
     /** expects: `[map: Map<String, String>]` */
-    object MetadataByMap : FFmpegArg(30, ArgOrder.AfterInput, "metadata", { params ->
+    object MetadataByMap : FFmpegArg(ArgOrder.AfterInput, "metadata", { params ->
         val m = params.firstOrNull() as? Map<*, *>
         m?.entries?.joinToString(",") { e ->
             "${e.key}=${e.value}"
@@ -132,18 +130,17 @@ sealed class FFmpegArg(
     })
 
     /** expects: `[preset]` */
-    object Preset : FFmpegArg(31, ArgOrder.AfterInput, "preset", FFArgParser.single)
+    object Preset : FFmpegArg(ArgOrder.AfterInput, "preset", FFArgParser.single)
 
     /** expects: `[crf]` */
-    object Crf : FFmpegArg(32, ArgOrder.AfterInput, "crf", FFArgParser.single)
+    object Crf : FFmpegArg(ArgOrder.AfterInput, "crf", FFArgParser.single)
 
     /** expects: `[Amount]` */
-    object MaxSizeByAmount : FFmpegArg(33, ArgOrder.AfterInput, "fs", FFArgParser.single)
+    object MaxSizeByAmount : FFmpegArg(ArgOrder.AfterInput, "fs", FFArgParser.single)
 
     /** expects: `[size]` */
-    object MaxSizeByString : FFmpegArg(34, ArgOrder.AfterInput, "fs", FFArgParser.single)
+    object MaxSizeByString : FFmpegArg(ArgOrder.AfterInput, "fs", FFArgParser.single)
 
     /** expects: `[output]` */
-    object Output : FFmpegArg(35, ArgOrder.Output, "", FFArgParser.single)
+    object Output : FFmpegArg(ArgOrder.Output, "", FFArgParser.single)
 }
-

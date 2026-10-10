@@ -8,26 +8,19 @@ sealed class FFCommand<TArg : FFArg> : Command {
     constructor(executable: String, vararg args: Argument) : super(executable, *args)
     constructor(executable: File, vararg args: Argument) : this(executable.absolutePath, *args)
 
-    abstract fun arg(arg: TArg, vararg value: Any): FFCommand<TArg>
-    abstract fun findArg(key: String): TArg?
-    abstract fun sortArgs(arg: TArg): Int
-
+    protected val argsSortedMap = sortedMapOf<TArg, Argument>()
     override val args: MutableList<Argument>
-        get() = super.args.apply {
-            sortBy { argument ->
-                findArg(argument.key.name)?.let { sortArgs(it) } ?: Int.MAX_VALUE
-            }
-        }
+        get() = argsSortedMap.values.toMutableList()
 
-    override fun arg(argument: Argument): FFCommand<TArg> {
-        val i = super.args.indexOfFirst { it.key == argument.key }
-        if (i >= 0) super.args[i] = argument
-        else super.args.add(argument)
-        return this
+    //! intentional: not allowed: bypasses sort
+    override fun arg(arg: Argument) = throw UnsupportedOperationException()
+
+    fun arg(arg: TArg, vararg value: Any): FFCommand<TArg> = apply {
+        argsSortedMap[arg] = Argument(
+            arg.key,
+            arg.parse(value)
+        )
     }
-
-    override fun arg(key: Argument.Key, vararg value: String): FFCommand<TArg> =
-            arg(Argument(key, *value))
 
     companion object {
         private fun Long.pad(length: Int = 2) =
