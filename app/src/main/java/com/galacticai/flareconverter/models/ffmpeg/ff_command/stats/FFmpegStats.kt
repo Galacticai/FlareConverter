@@ -8,43 +8,8 @@ import global.common.util.TextUtil.pascalCase
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.microseconds
 
-enum class FFmpegStatKey(val key: String) {
-    /** processed frames */
-    Frame("frame"),
-
-    /** frame processing speed per second */
-    Fps("fps"),
-
-    /** average output bitrate */
-    Bitrate("bitrate"),
-
-    /** current output size */
-    Size("total_size"),
-
-    /** ETA */
-    OutTimeUs("out_time_us"),
-
-    /** frames duplicated (cumulative) */
-    DupFrames("dup_frames"),
-
-    /** frames dropped (cumulative) */
-    DropFrames("drop_frames"),
-
-    /** processing speed (multiplier) (relative to normal playback) */
-    Speed("speed"),
-
-    /** continue or end of progress */
-    Progress("progress"),
-}
-
-enum class FFmpegStatsProgress {
-    /** continue processing */
-    Continue,
-
-    /** last bit of progress (finished after this) */
-    End
-}
-
+/** @see FFmpegStatKey
+ * @see FFmpegStatsBuilder */
 class FFmpegStats(
     private val raw: Map<FFmpegStatKey, String>
 ) {
@@ -52,8 +17,7 @@ class FFmpegStats(
     val fps by lazy { raw[FFmpegStatKey.Fps]?.toFloatOrNull() }
     val bitrate by lazy {
         val v = raw[FFmpegStatKey.Bitrate]
-            ?.replace(Regex("[^\\d.]"), "")
-            ?.toDoubleOrNull()
+            ?.numberOnly()?.toDoubleOrNull()
             ?: return@lazy null
         Amount(v, MetricSystem.kilo() and BaseUnit.bitPerSecond())
             .toUnit(BinarySystem.mebi() and BaseUnit.bitPerSecond())
@@ -65,17 +29,12 @@ class FFmpegStats(
         Amount(v, BaseUnit.byte())
             .toUnit(BinarySystem.mebi() and BaseUnit.byte())
     }
-    val outTime by lazy {
-        raw[FFmpegStatKey.OutTimeUs]
-            ?.toLongOrNull()
-            ?.microseconds
-    }
+    val outTime by lazy { raw[FFmpegStatKey.OutTimeUs]?.toLongOrNull()?.microseconds }
     val dupFrames by lazy { raw[FFmpegStatKey.DupFrames]?.toIntOrNull() }
     val dropFrames by lazy { raw[FFmpegStatKey.DropFrames]?.toIntOrNull() }
     val speed by lazy {
         raw[FFmpegStatKey.Speed]
-            ?.replace(Regex("[^\\d.]"), "")
-            ?.toFloatOrNull()
+            ?.numberOnly()?.toFloatOrNull()
     }
     val progressFlag by lazy {
         raw[FFmpegStatKey.Progress]?.let {
@@ -89,30 +48,12 @@ class FFmpegStats(
         if (totalUs <= 0) return null
         return (processedUs.toFloat() / totalUs).coerceIn(0f, 1f)
     }
-}
 
-class FFmpegStatsBuilder(
-    /** called upon completing stats lines (after detecting [FFmpegStatKey.Progress]) */
-    val onProgress: suspend (FFmpegStats) -> Unit
-) {
-    private val _raw = mutableMapOf<FFmpegStatKey, String>()
-    val raw get() = _raw.toMap()
-
-    /** @return first = this instance  |  second = progress line (last) */
-    suspend fun append(line: String): FFmpegStatsBuilder = try {
-        if (line.isBlank()) return this
-        val (keyRaw, valueRaw) = line.split("=", limit = 2)
-        val key = FFmpegStatKey.valueOf(keyRaw.pascalCase)
-        _raw[key] = valueRaw
-        if (key == FFmpegStatKey.Progress) {
-            onProgress(FFmpegStats(raw))
-        }
-        return this
-    } catch (_: Throwable) {
-        return this
+    companion object {
+        private fun String.numberOnly() =
+                this.replace(Regex("[^\\d.]"), "")
     }
 }
-
 
 /*                    VIDEO
 frame=4801

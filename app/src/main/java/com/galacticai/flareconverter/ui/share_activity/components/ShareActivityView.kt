@@ -7,7 +7,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -23,6 +22,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -33,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -62,6 +61,7 @@ import global.common.models.space.dp_bound.DpPlacement
 import global.common.ui.ExpanderPage
 import global.common.ui.bounds_resolver.BoundPlacementUtil.rememberScrollConnection
 import global.common.ui.bounds_resolver.LocalPlacementState
+import global.common.util.ColorUtil
 import global.common.util.ColorUtil.colorInBetween
 import global.common.util.ColorUtil.hsl
 import global.common.util.DpUtil.onSizeChangedDp
@@ -132,6 +132,30 @@ object ShareActivityView {
         val bg1: Color, val bg2: Color,
         val ratioSnap: Float,
     )
+
+    /** @return pair
+     * - ratio (snapped to 0-1 + animated)
+     * -  (bg1, bg2) */
+    @Composable //TODO: move to ui not helpers
+    fun getBgColors(ratio: Float): State<Colors> {
+        val colors = MaterialTheme.colorScheme
+        val ratioSnap by animateFloatAsState(
+            if (ratio == 0f) 0f else 1f,
+            tween(500),
+        )
+        return remember(colors, ratioSnap) {
+            derivedStateOf {
+                fun between(pair: Pair<Color, Color>) = ColorUtil.colorInBetween(
+                    1 - ratioSnap, 0f, 1f,
+                    pair.first, pair.second
+                )
+
+                val bg1 = between(colors.surface.copy(0f) to colors.surface)
+                val bg2 = between(colors.surface.copy(.5f) to colors.surfaceVariant)
+                Colors(bg1, bg2, ratioSnap)
+            }
+        }
+    }
 
     @SuppressLint("ModifierFactoryExtensionFunction") //! intentional: avoid accidental foreign imports
     @Composable
@@ -221,7 +245,7 @@ private fun BoxWithConstraintsScope.ContentBehind(
 @SuppressLint("ModifierParameter")
 @Composable
 private fun BoxWithConstraintsScope.ContentAbove(
-    boundModifier: Modifier, dragModifier: Modifier
+    boundModifier: Modifier, dragModifier: Modifier,
 ) {
     val activity = LocalActivity.current as ShareActivity
     val convertStage = LocalConvertStage.current
@@ -229,7 +253,7 @@ private fun BoxWithConstraintsScope.ContentAbove(
     val configListState = LocalConfigListState.current
     val ratio = placementState.ratio
 
-    val colors by ShareActivityHelpers.getBgColors(ratio)
+    val colors by ShareActivityView.getBgColors(ratio)
     val inFile by activity.vm.inFileFlow.collectAsState()
     val hide = inFile !is Progressive.Done
             || placementState.source == DpPlacement.zero
@@ -247,25 +271,23 @@ private fun BoxWithConstraintsScope.ContentAbove(
             Modifier.nestedScroll(scrollConnection) then
             dragModifier then //! intentional: drag must be AFTER nested scroll
             ShareActivityView.shadowAbove() then
-            Modifier.clip(Consistent.Shape.Rounded.all)
-                .alpha(cardAlphaAnimated)
-                .border(
-                    .5.dp,
-                    MaterialTheme.colorScheme.primary.copy(.5f * ratio),
-                    Consistent.Shape.Rounded.all,
-                )
+            Modifier.alpha(cardAlphaAnimated)
 
     AnimatedVisibility(
         visible = convertStage <= ConvertStage.Config,
         enter = Consistent.Animation.inUp, exit = Consistent.Animation.outDown,
     ) {
         Card(
-            modifier = modifier,
+            modifier = modifier.align(Alignment.BottomCenter),
             shape = Consistent.Shape.Rounded.all,
             colors = CardDefaults.cardColors(
                 colors.bg1,
                 MaterialTheme.colorScheme.onBackground, //! required: transparent bg causes fg to go black
             ),
+            border = BorderStroke(
+                .5.dp,
+                MaterialTheme.colorScheme.primary.copy(.5f * ratio),
+            )
         ) {
             ExpressiveHandle(
                 colors.bg2, border = colors.ratioSnap.containerOutline,

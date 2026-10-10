@@ -9,7 +9,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import com.galacticai.flareconverter.models.ConvertStage
 import com.galacticai.flareconverter.ui.share_activity.ShareActivity
-import com.galacticai.flareconverter.ui.share_activity.ShareActivityHelpers
 import global.common.ui.bounds_resolver.LocalPlacementState
 import global.common.ui.bounds_resolver.PlacementState
 
@@ -29,7 +28,7 @@ object LocalShareActivityStates {
         val activity = LocalActivity.current as ShareActivity
         val placementState = PlacementState.remember()
         val configColumnState = rememberLazyListState()
-        val colors by ShareActivityHelpers.getBgColors(placementState.ratio)
+        val colors by ShareActivityView.getBgColors(placementState.ratio)
         val convertStage = activity.helpers.rememberConvertStage()
 
         CompositionLocalProvider(

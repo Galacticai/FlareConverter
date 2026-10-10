@@ -4,17 +4,11 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.LocalActivity
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import com.galacticai.flareconverter.models.ConvertStage
 import com.galacticai.flareconverter.models.MediaFile
 import com.galacticai.flareconverter.models.MimeType
@@ -24,12 +18,10 @@ import com.galacticai.flareconverter.models.exceptions.InvalidLaunchCommand
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.FFmpegCommand.Companion.toCommand
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.args.FFmpegArg
 import com.galacticai.flareconverter.ui.share_activity.components.LocalShareActivityStates.LocalConfigListState
-import com.galacticai.flareconverter.ui.share_activity.components.ShareActivityView.Colors
 import com.galacticai.flareconverter.util.MimeTypeUtils.outMimeSetting
-import com.galacticai.flareconverter.util.ff_command.FFInfo
+import com.galacticai.flareconverter.util.media.FFInfo
 import global.common.models.progressive.Progressive
 import global.common.ui.bounds_resolver.LocalPlacementState
-import global.common.util.ColorUtil
 import global.common.util.IOUtil.child
 import global.common.util.IOUtil.copyToFile
 import global.common.util.IOUtil.toExtension
@@ -206,31 +198,6 @@ class ShareActivityHelpers(private val activity: ShareActivity) {
                         FFmpegArg.Version,
                     )
                 )
-
-
-        /** @return pair
-         * - ratio (snapped to 0-1 + animated)
-         * -  (bg1, bg2) */
-        @Composable //TODO: move to ui not helpers
-        fun getBgColors(ratio: Float): State<Colors> {
-            val colors = MaterialTheme.colorScheme
-            val ratioSnap by animateFloatAsState(
-                if (ratio == 0f) 0f else 1f,
-                tween(500),
-            )
-            return remember(colors, ratioSnap) {
-                derivedStateOf {
-                    fun between(pair: Pair<Color, Color>) = ColorUtil.colorInBetween(
-                        1 - ratioSnap, 0f, 1f,
-                        pair.first, pair.second
-                    )
-
-                    val bg1 = between(colors.surface.copy(0f) to colors.surface)
-                    val bg2 = between(colors.surface.copy(.5f) to colors.surfaceVariant)
-                    Colors(bg1, bg2, ratioSnap)
-                }
-            }
-        }
 
         /**
          * sync:
