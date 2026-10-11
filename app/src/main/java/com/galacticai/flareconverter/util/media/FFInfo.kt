@@ -71,7 +71,7 @@ object FFInfo {
         for (stream in streams!!) {
             val index = stream.index ?: continue
             val codecNameKey = stream.codecName ?: continue
-            val codec = MediaCapabilities.FFmpeg.CODECS?.get(codecNameKey) ?: continue
+            val codec = MediaCapabilities.FFmpeg.codecs?.get(codecNameKey) ?: continue
             if (!codec.canDecode) continue
             val context = streamContexts[index]
             val isGroup = context?.isGroup ?: false

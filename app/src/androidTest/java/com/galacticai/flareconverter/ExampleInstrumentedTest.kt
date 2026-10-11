@@ -10,7 +10,7 @@ import org.junit.runner.RunWith
 class ExampleInstrumentedTest {
     @Test
     fun useAppContext() {
-        val value = MediaCapabilities.Device.CODECS
+        val value = MediaCapabilities.Device.codecs
         assert(value.isNotEmpty())
     }
 }

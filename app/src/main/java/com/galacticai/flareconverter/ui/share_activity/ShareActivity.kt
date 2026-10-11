@@ -33,11 +33,11 @@ class ShareActivity : AppCompatActivity() {
         clearOutputDir(true)
 
         //? cache the supported codecs and formats
-        MediaCapabilities.FFmpeg.FORMATS
-        MediaCapabilities.FFmpeg.CODECS
-        MediaCapabilities.FFmpeg.ENCODERS
-        MediaCapabilities.Device.CODECS
-        MediaCapabilities.Device.MIMES
+        MediaCapabilities.FFmpeg.formats
+        MediaCapabilities.FFmpeg.codecs
+        MediaCapabilities.FFmpeg.encoders
+        MediaCapabilities.Device.codecs
+        MediaCapabilities.Device.mimes
 
         vm.shareInfoState.value = helpers.initFile(
             coroutineContext[Job],
