@@ -7,22 +7,6 @@ sealed class FFprobeArg(
     title: String? = null,
 ) : FFArg(order, argKey, parseCmd, title) {
 
-    override val id = entries.indexOf(this)
-
-    companion object {
-        fun from(id: Int) = entries.find { id == it.id }
-
-        val entries: List<FFprobeArg> by lazy {
-            listOf(
-                Version, Help, Input, LogLevel, HideBanner, PrintFormat, OutputFormat,
-                SelectStreams, ShowStreams, ShowStreamGroups, ShowFormat, ShowPrograms,
-                ShowChapters, ShowPackets, ShowFrames, ShowData, ShowError, ShowEntries,
-                CountFrames, CountPackets, ReadIntervals, ShowPixelFormats, ShowCodecs,
-                ShowFormats, ShowProtocols,
-            )
-        }
-    }
-
     object Version : FFprobeArg(ArgOrder.First, "version")
     object Help : FFprobeArg(ArgOrder.First, "h")
     object Input : FFprobeArg(ArgOrder.Input, "i", FFArgParser.single)

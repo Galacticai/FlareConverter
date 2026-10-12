@@ -86,7 +86,7 @@ fun ConfigView() {
         )
     ) {
         items(
-            count = entries.size, key = { entries[it].name },
+            count = entries.size, key = { entries[it].id },
         ) { i ->
             val entry = entries[i]
             val isLast = i == configShown.size - 1

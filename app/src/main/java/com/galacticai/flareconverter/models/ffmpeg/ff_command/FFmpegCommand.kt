@@ -1,7 +1,7 @@
 package com.galacticai.flareconverter.models.ffmpeg.ff_command
 
+import com.galacticai.flareconverter.models.ffmpeg.ff_command.args.FFArg.Companion.sortedArgs
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.args.FFmpegArg
-import com.galacticai.flareconverter.models.ffmpeg.ff_command.args.sortedArgs
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.stats.FFmpegStats
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.stats.FFmpegStatsBuilder
 import com.galacticai.flareconverter.util.App

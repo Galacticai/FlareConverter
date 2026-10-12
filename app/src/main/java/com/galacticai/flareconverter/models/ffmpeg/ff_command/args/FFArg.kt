@@ -6,11 +6,13 @@ import global.common.util.TextUtil.sentenceCase
 sealed class FFArg(
     val order: ArgOrder,
     /** command arg key (not an identifier) */
-    val argKey: String,
+    argKey: String,
     val parse: FFArgParserFn,
     title: String? = null,
 ) : Comparable<FFArg> {
-    abstract val id: Int
+    val id = listOfNotNull(
+        order.ordinal, argKey, title,
+    ).joinToString("-")
 
     override fun compareTo(other: FFArg): Int = when {
         this.order != other.order -> order.compareTo(other.order)
@@ -23,7 +25,18 @@ sealed class FFArg(
     val name = this::class.simpleName!!.sentenceCase
     val title = title ?: name
     override fun toString() = title
+
+    companion object {
+        inline fun <reified T : FFArg> all(): Map<String, T> =
+                T::class.sealedSubclasses
+                    .mapNotNull { it.objectInstance }
+                    .sortedBy { it.order }
+                    .associateBy { it.id }
+
+        inline fun <reified T : FFArg> from(id: String) = all<T>()[id]
+
+        fun <T : FFArg> Iterable<T>.sortedArgs(): List<T> =
+                this.sortedWith(compareBy({ it.order }, { it.id }))
+    }
 }
 
-fun <T : FFArg> Iterable<T>.sortedArgs(): List<T> =
-        this.sortedWith(compareBy({ it.order }, { it.id }))

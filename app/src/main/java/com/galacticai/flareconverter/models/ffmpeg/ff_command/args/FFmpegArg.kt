@@ -7,23 +7,6 @@ sealed class FFmpegArg(
     title: String? = null,
 ) : FFArg(order, argKey, parseCmd, title) {
 
-    override val id = entries.indexOf(this)
-
-    companion object {
-        fun from(id: Int) = entries.find { id == it.id }
-
-        val entries: List<FFmpegArg> by lazy {
-            listOf(
-                Version, Help, HideBanner, Codecs, Encoders, Formats, Progress, Input, FrameCount,
-                FrameRate, SampleRate, Channels, Bitrate, BitrateVideo, BitrateAudio, CodecVideo,
-                CodecAudio, Resolution, DurationByString, DurationByMs, Format, StartTimeByMs,
-                StartTimeByString, EndTimeByMs, EndTimeByString, Scale, Crop, Speed, Pitch,
-                MetadataByString, MetadataByPairs, MetadataByMap, Preset, Crf, MaxSizeByAmount,
-                MaxSizeByString, Output,
-            )
-        }
-    }
-
     object Version : FFmpegArg(ArgOrder.First, "version", FFArgParser.none)
     object Help : FFmpegArg(ArgOrder.First, "h", FFArgParser.none)
     object HideBanner : FFmpegArg(ArgOrder.First, "hide_banner", FFArgParser.none)
