@@ -18,22 +18,41 @@ class CodecIntersectionTest {
         assertNotNull("FFmpeg codecs should not be null", ffmpegCodecs)
         assertNotNull("Device codecs should not be null", deviceCodecs)
 
-        // Dynamically intersect using MediaCapabilities.Intersect.codecs(...)
-        val intersectedCodecs = MediaCapabilities.Intersect.codecs(null)
-        val intersectedEncoders = MediaCapabilities.Intersect.codecs(true)
-        val intersectedDecoders = MediaCapabilities.Intersect.codecs(false)
+        val supportedCodecs = MediaCapabilities.Intersect.supportedCodecs()
+        val decoders = MediaCapabilities.Intersect.decoders()
+        val encoders = MediaCapabilities.Intersect.encoders()
 
-        assertNotNull("Intersected codecs should not be null", intersectedCodecs)
-        assertNotNull("Intersected encoders should not be null", intersectedEncoders)
-        assertNotNull("Intersected decoders should not be null", intersectedDecoders)
+        assertNotNull("Supported codecs set should not be null", supportedCodecs)
+        assertNotNull("Decoders map should not be null", decoders)
+        assertNotNull("Encoders map should not be null", encoders)
 
         Log.d(
             "CodecIntersectionTest",
-            "FFmpeg: ${ffmpegCodecs?.size}, Device: ${deviceCodecs.size}, Intersected: ${intersectedCodecs?.size}, Enc: ${intersectedEncoders?.size}, Dec: ${intersectedDecoders?.size}"
+            "FFmpeg: ${ffmpegCodecs?.size}, Device: ${deviceCodecs.size}, Supported: ${supportedCodecs.size}, Decoders: ${decoders?.size}, Encoders: ${encoders?.size}"
         )
 
-        intersectedCodecs?.keys?.forEach {
-            Log.d("CodecIntersectionTest", "+ $it")
+        decoders?.values?.firstOrNull()?.let {
+            val canDecode = MediaCapabilities.Intersect.canDecode(it)
+            Log.d(
+                "CodecIntersectionTest",
+                "Sample decoder check for ${it.key}: canDecode=$canDecode"
+            )
+        }
+
+        encoders?.values?.firstOrNull()?.let {
+            val canEncode = MediaCapabilities.Intersect.canEncode(it)
+            Log.d(
+                "CodecIntersectionTest",
+                "Sample encoder check for ${it.key}: canEncode=$canEncode"
+            )
+        }
+
+        decoders?.keys?.forEach {
+            Log.d("CodecIntersectionTest", "+ decoder: $it")
+        }
+
+        encoders?.keys?.forEach {
+            Log.d("CodecIntersectionTest", "+ encoder: $it")
         }
 
         val unmatchedDeviceCodecs = deviceCodecs.filter { deviceCodec ->
@@ -45,7 +64,7 @@ class CodecIntersectionTest {
                 addAll(name.split(Regex("[^a-z0-9]+")).filter { it.length > 1 })
             }
 
-            intersectedCodecs?.none { (key, codec) ->
+            decoders?.none { (key, codec) ->
                 val codecTokens = buildSet {
                     addAll(key.lowercase().split(Regex("[^a-z0-9]+")).filter { it.length > 1 })
                     addAll(
@@ -62,222 +81,500 @@ class CodecIntersectionTest {
     }
 }
 
-/* log:
-FFmpeg: 539, Device: 103, Intersected: 216, Enc: 29, Dec: 216
-+ 8bps
-+ amv
-+ apv
-+ argo
-+ av1
-+ avs
-+ bethsoftvid
-+ binkvideo
-+ bmv_video
-+ cavs
-+ cdgraphics
-+ cdtoons
-+ cdxl
-+ cmv
-+ cpia
-+ cri
-+ dds
-+ dsicinvideo
-+ dvvideo
-+ ffv1
-+ flashsv
-+ flashsv2
-+ flic
-+ flv1
-+ gdv
-+ h263
-+ h264
-+ hevc
-+ hnm4video
-+ idcin
-+ indeo4
-+ indeo5
-+ interplayvideo
-+ ipu
-+ jv
-+ kgv1
-+ kmvc
-+ mad
-+ magicyuv
-+ mdec
-+ mmvideo
-+ mobiclip
-+ motionpixels
-+ mpeg1video
-+ mpeg2video
-+ mpeg4
-+ msa1
-+ msmpeg4v1
-+ msmpeg4v2
-+ msmpeg4v3
-+ mss1
-+ mss2
-+ msvideo1
-+ mts2
-+ mvc1
-+ mvc2
-+ mxpeg
-+ paf_video
-+ pdv
-+ prores_raw
-+ prosumer
-+ qtrle
-+ rawvideo
-+ rl2
-+ roq
-+ rpza
-+ rtv1
-+ sanm
-+ sga
-+ simbiosis_imx
-+ smackvideo
-+ smvjpeg
-+ svq1
-+ svq3
-+ tgq
-+ tgv
-+ thp
-+ tiertexseqvideo
-+ tqi
-+ utvideo
-+ vc1
-+ vc1image
-+ vmdvideo
-+ vmix
-+ vmnc
-+ vnull
-+ vp3
-+ vp4
-+ vp5
-+ vp6
-+ vp6a
-+ vp6f
-+ vp7
-+ vp8
-+ vp9
-+ vvc
-+ wcmv
-+ wmv1
-+ wmv2
-+ wmv3
-+ wmv3image
-+ ws_vqa
-+ yop
-+ zerocodec
-+ zmbv
-+ aac
-+ aac_latm
-+ ac3
-+ adpcm_4xm
-+ adpcm_adx
-+ adpcm_afc
-+ adpcm_agm
-+ adpcm_aica
-+ adpcm_argo
-+ adpcm_ct
-+ adpcm_dtk
-+ adpcm_ea
-+ adpcm_ea_maxis_xa
-+ adpcm_ea_r1
-+ adpcm_ea_r2
-+ adpcm_ea_r3
-+ adpcm_ea_xas
-+ adpcm_g722
-+ adpcm_g726
-+ adpcm_g726le
-+ adpcm_ima_acorn
-+ adpcm_ima_alp
-+ adpcm_ima_amv
-+ adpcm_ima_apc
-+ adpcm_ima_apm
-+ adpcm_ima_cunning
-+ adpcm_ima_dat4
-+ adpcm_ima_dk3
-+ adpcm_ima_dk4
-+ adpcm_ima_ea_eacs
-+ adpcm_ima_ea_sead
-+ adpcm_ima_iss
-+ adpcm_ima_moflex
-+ adpcm_ima_mtf
-+ adpcm_ima_oki
-+ adpcm_ima_qt
-+ adpcm_ima_rad
-+ adpcm_ima_smjpeg
-+ adpcm_ima_ssi
-+ adpcm_ima_wav
-+ adpcm_ima_ws
-+ adpcm_ima_xbox
-+ adpcm_ms
-+ adpcm_mtaf
-+ adpcm_psx
-+ adpcm_sanyo
-+ adpcm_sbpro_2
-+ adpcm_sbpro_3
-+ adpcm_sbpro_4
-+ adpcm_swf
-+ adpcm_thp
-+ adpcm_thp_le
-+ adpcm_vima
-+ adpcm_xa
-+ adpcm_xmd
-+ adpcm_yamaha
-+ adpcm_zork
-+ amr_nb
-+ amr_wb
-+ ape
-+ avc
-+ dolby_e
-+ eac3
-+ flac
-+ gsm
-+ gsm_ms
-+ ilbc
-+ mp1
-+ mp2
-+ mp3
-+ mp3adu
-+ mp4als
-+ opus
-+ pcm_alaw
-+ pcm_bluray
-+ pcm_dvd
-+ pcm_f16le
-+ pcm_f24le
-+ pcm_f32be
-+ pcm_f32le
-+ pcm_f64be
-+ pcm_f64le
-+ pcm_lxf
-+ pcm_mulaw
-+ pcm_s16be
-+ pcm_s16be_planar
-+ pcm_s16le
-+ pcm_s16le_planar
-+ pcm_s24be
-+ pcm_s24daud
-+ pcm_s24le
-+ pcm_s24le_planar
-+ pcm_s32be
-+ pcm_s32le
-+ pcm_s32le_planar
-+ pcm_s64be
-+ pcm_s64le
-+ pcm_s8
-+ pcm_s8_planar
-+ pcm_sga
-+ pcm_u16be
-+ pcm_u16le
-+ pcm_u24be
-+ pcm_u24le
-+ pcm_u32be
-+ pcm_u32le
-+ pcm_u8
-+ pcm_vidc
-+ sbc
-+ vorbis
-+ text
+/*
+FFmpeg: 539, Device: 103, Supported: 104, Decoders: 216, Encoders: 29
+Sample decoder check for 8bps: canDecode=true, canInput=true
+Sample encoder check for amv: canEncode=true, canOutput=true
++ decoder: 8bps
++ decoder: amv
++ decoder: apv
++ decoder: argo
++ decoder: av1
++ decoder: avs
++ decoder: bethsoftvid
++ decoder: binkvideo
++ decoder: bmv_video
++ decoder: cavs
++ decoder: cdgraphics
++ decoder: cdtoons
++ decoder: cdxl
++ decoder: cmv
++ decoder: cpia
++ decoder: cri
++ decoder: dds
++ decoder: dsicinvideo
++ decoder: dvvideo
++ decoder: ffv1
++ decoder: flashsv
++ decoder: flashsv2
++ decoder: flic
++ decoder: flv1
++ decoder: gdv
++ decoder: h263
++ decoder: h264
++ decoder: hevc
++ decoder: hnm4video
++ decoder: idcin
++ decoder: indeo4
++ decoder: indeo5
++ decoder: interplayvideo
++ decoder: ipu
++ decoder: jv
++ decoder: kgv1
++ decoder: kmvc
++ decoder: mad
++ decoder: magicyuv
++ decoder: mdec
++ decoder: mmvideo
++ decoder: mobiclip
++ decoder: motionpixels
++ decoder: mpeg1video
++ decoder: mpeg2video
++ decoder: mpeg4
++ decoder: msa1
++ decoder: msmpeg4v1
++ decoder: msmpeg4v2
++ decoder: msmpeg4v3
++ decoder: mss1
++ decoder: mss2
++ decoder: msvideo1
++ decoder: mts2
++ decoder: mvc1
++ decoder: mvc2
++ decoder: mxpeg
++ decoder: paf_video
++ decoder: pdv
++ decoder: prores_raw
++ decoder: prosumer
++ decoder: qtrle
++ decoder: rawvideo
++ decoder: rl2
++ decoder: roq
++ decoder: rpza
++ decoder: rtv1
++ decoder: sanm
++ decoder: sga
++ decoder: simbiosis_imx
++ decoder: smackvideo
++ decoder: smvjpeg
++ decoder: svq1
++ decoder: svq3
++ decoder: tgq
++ decoder: tgv
++ decoder: thp
++ decoder: tiertexseqvideo
++ decoder: tqi
++ decoder: utvideo
++ decoder: vc1
++ decoder: vc1image
++ decoder: vmdvideo
++ decoder: vmix
++ decoder: vmnc
++ decoder: vnull
++ decoder: vp3
++ decoder: vp4
++ decoder: vp5
++ decoder: vp6
++ decoder: vp6a
++ decoder: vp6f
++ decoder: vp7
++ decoder: vp8
++ decoder: vp9
++ decoder: vvc
++ decoder: wcmv
++ decoder: wmv1
++ decoder: wmv2
++ decoder: wmv3
++ decoder: wmv3image
++ decoder: ws_vqa
++ decoder: yop
++ decoder: zerocodec
++ decoder: zmbv
++ decoder: aac
++ decoder: aac_latm
++ decoder: ac3
++ decoder: adpcm_4xm
++ decoder: adpcm_adx
++ decoder: adpcm_afc
++ decoder: adpcm_agm
++ decoder: adpcm_aica
++ decoder: adpcm_argo
++ decoder: adpcm_ct
++ decoder: adpcm_dtk
++ decoder: adpcm_ea
++ decoder: adpcm_ea_maxis_xa
++ decoder: adpcm_ea_r1
++ decoder: adpcm_ea_r2
++ decoder: adpcm_ea_r3
++ decoder: adpcm_ea_xas
++ decoder: adpcm_g722
++ decoder: adpcm_g726
++ decoder: adpcm_g726le
++ decoder: adpcm_ima_acorn
++ decoder: adpcm_ima_alp
++ decoder: adpcm_ima_amv
++ decoder: adpcm_ima_apc
++ decoder: adpcm_ima_apm
++ decoder: adpcm_ima_cunning
++ decoder: adpcm_ima_dat4
++ decoder: adpcm_ima_dk3
++ decoder: adpcm_ima_dk4
++ decoder: adpcm_ima_ea_eacs
++ decoder: adpcm_ima_ea_sead
++ decoder: adpcm_ima_iss
++ decoder: adpcm_ima_moflex
++ decoder: adpcm_ima_mtf
++ decoder: adpcm_ima_oki
++ decoder: adpcm_ima_qt
++ decoder: adpcm_ima_rad
++ decoder: adpcm_ima_smjpeg
++ decoder: adpcm_ima_ssi
++ decoder: adpcm_ima_wav
++ decoder: adpcm_ima_ws
++ decoder: adpcm_ima_xbox
++ decoder: adpcm_ms
++ decoder: adpcm_mtaf
++ decoder: adpcm_psx
++ decoder: adpcm_sanyo
++ decoder: adpcm_sbpro_2
++ decoder: adpcm_sbpro_3
++ decoder: adpcm_sbpro_4
++ decoder: adpcm_swf
++ decoder: adpcm_thp
++ decoder: adpcm_thp_le
++ decoder: adpcm_vima
++ decoder: adpcm_xa
++ decoder: adpcm_xmd
++ decoder: adpcm_yamaha
++ decoder: adpcm_zork
++ decoder: amr_nb
++ decoder: amr_wb
++ decoder: ape
++ decoder: avc
++ decoder: dolby_e
++ decoder: eac3
++ decoder: flac
++ decoder: gsm
++ decoder: gsm_ms
++ decoder: ilbc
++ decoder: mp1
++ decoder: mp2
++ decoder: mp3
++ decoder: mp3adu
++ decoder: mp4als
++ decoder: opus
++ decoder: pcm_alaw
++ decoder: pcm_bluray
++ decoder: pcm_dvd
++ decoder: pcm_f16le
++ decoder: pcm_f24le
++ decoder: pcm_f32be
++ decoder: pcm_f32le
++ decoder: pcm_f64be
++ decoder: pcm_f64le
++ decoder: pcm_lxf
++ decoder: pcm_mulaw
++ decoder: pcm_s16be
++ decoder: pcm_s16be_planar
++ decoder: pcm_s16le
++ decoder: pcm_s16le_planar
++ decoder: pcm_s24be
++ decoder: pcm_s24daud
++ decoder: pcm_s24le
++ decoder: pcm_s24le_planar
++ decoder: pcm_s32be
++ decoder: pcm_s32le
++ decoder: pcm_s32le_planar
++ decoder: pcm_s64be
++ decoder: pcm_s64le
++ decoder: pcm_s8
++ decoder: pcm_s8_planar
++ decoder: pcm_sga
++ decoder: pcm_u16be
++ decoder: pcm_u16le
++ decoder: pcm_u24be
++ decoder: pcm_u24le
++ decoder: pcm_u32be
++ decoder: pcm_u32le
++ decoder: pcm_u8
++ decoder: pcm_vidc
++ decoder: sbc
++ decoder: vorbis
++ decoder: text
++ encoder: amv
++ encoder: dvvideo
++ encoder: ffv1
++ encoder: flashsv
++ encoder: flashsv2
++ encoder: flv1
++ encoder: h263
++ encoder: h264
++ encoder: hevcFFmpeg: 539, Device: 103, Supported: 104, Decoders: 216, Encoders: 29
+Sample decoder check for 8bps: canDecode=true, canInput=true
+Sample encoder check for amv: canEncode=true, canOutput=true
++ decoder: 8bps
++ decoder: amv
++ decoder: apv
++ decoder: argo
++ decoder: av1
++ decoder: avs
++ decoder: bethsoftvid
++ decoder: binkvideo
++ decoder: bmv_video
++ decoder: cavs
++ decoder: cdgraphics
++ decoder: cdtoons
++ decoder: cdxl
++ decoder: cmv
++ decoder: cpia
++ decoder: cri
++ decoder: dds
++ decoder: dsicinvideo
++ decoder: dvvideo
++ decoder: ffv1
++ decoder: flashsv
++ decoder: flashsv2
++ decoder: flic
++ decoder: flv1
++ decoder: gdv
++ decoder: h263
++ decoder: h264
++ decoder: hevc
++ decoder: hnm4video
++ decoder: idcin
++ decoder: indeo4
++ decoder: indeo5
++ decoder: interplayvideo
++ decoder: ipu
++ decoder: jv
++ decoder: kgv1
++ decoder: kmvc
++ decoder: mad
++ decoder: magicyuv
++ decoder: mdec
++ decoder: mmvideo
++ decoder: mobiclip
++ decoder: motionpixels
++ decoder: mpeg1video
++ decoder: mpeg2video
++ decoder: mpeg4
++ decoder: msa1
++ decoder: msmpeg4v1
++ decoder: msmpeg4v2
++ decoder: msmpeg4v3
++ decoder: mss1
++ decoder: mss2
++ decoder: msvideo1
++ decoder: mts2
++ decoder: mvc1
++ decoder: mvc2
++ decoder: mxpeg
++ decoder: paf_video
++ decoder: pdv
++ decoder: prores_raw
++ decoder: prosumer
++ decoder: qtrle
++ decoder: rawvideo
++ decoder: rl2
++ decoder: roq
++ decoder: rpza
++ decoder: rtv1
++ decoder: sanm
++ decoder: sga
++ decoder: simbiosis_imx
++ decoder: smackvideo
++ decoder: smvjpeg
++ decoder: svq1
++ decoder: svq3
++ decoder: tgq
++ decoder: tgv
++ decoder: thp
++ decoder: tiertexseqvideo
++ decoder: tqi
++ decoder: utvideo
++ decoder: vc1
++ decoder: vc1image
++ decoder: vmdvideo
++ decoder: vmix
++ decoder: vmnc
++ decoder: vnull
++ decoder: vp3
++ decoder: vp4
++ decoder: vp5
++ decoder: vp6
++ decoder: vp6a
++ decoder: vp6f
++ decoder: vp7
++ decoder: vp8
++ decoder: vp9
++ decoder: vvc
++ decoder: wcmv
++ decoder: wmv1
++ decoder: wmv2
++ decoder: wmv3
++ decoder: wmv3image
++ decoder: ws_vqa
++ decoder: yop
++ decoder: zerocodec
++ decoder: zmbv
++ decoder: aac
++ decoder: aac_latm
++ decoder: ac3
++ decoder: adpcm_4xm
++ decoder: adpcm_adx
++ decoder: adpcm_afc
++ decoder: adpcm_agm
++ decoder: adpcm_aica
++ decoder: adpcm_argo
++ decoder: adpcm_ct
++ decoder: adpcm_dtk
++ decoder: adpcm_ea
++ decoder: adpcm_ea_maxis_xa
++ decoder: adpcm_ea_r1
++ decoder: adpcm_ea_r2
++ decoder: adpcm_ea_r3
++ decoder: adpcm_ea_xas
++ decoder: adpcm_g722
++ decoder: adpcm_g726
++ decoder: adpcm_g726le
++ decoder: adpcm_ima_acorn
++ decoder: adpcm_ima_alp
++ decoder: adpcm_ima_amv
++ decoder: adpcm_ima_apc
++ decoder: adpcm_ima_apm
++ decoder: adpcm_ima_cunning
++ decoder: adpcm_ima_dat4
++ decoder: adpcm_ima_dk3
++ decoder: adpcm_ima_dk4
++ decoder: adpcm_ima_ea_eacs
++ decoder: adpcm_ima_ea_sead
++ decoder: adpcm_ima_iss
++ decoder: adpcm_ima_moflex
++ decoder: adpcm_ima_mtf
++ decoder: adpcm_ima_oki
++ decoder: adpcm_ima_qt
++ decoder: adpcm_ima_rad
++ decoder: adpcm_ima_smjpeg
++ decoder: adpcm_ima_ssi
++ decoder: adpcm_ima_wav
++ decoder: adpcm_ima_ws
++ decoder: adpcm_ima_xbox
++ decoder: adpcm_ms
++ decoder: adpcm_mtaf
++ decoder: adpcm_psx
++ decoder: adpcm_sanyo
++ decoder: adpcm_sbpro_2
++ decoder: adpcm_sbpro_3
++ decoder: adpcm_sbpro_4
++ decoder: adpcm_swf
++ decoder: adpcm_thp
++ decoder: adpcm_thp_le
++ decoder: adpcm_vima
++ decoder: adpcm_xa
++ decoder: adpcm_xmd
++ decoder: adpcm_yamaha
++ decoder: adpcm_zork
++ decoder: amr_nb
++ decoder: amr_wb
++ decoder: ape
++ decoder: avc
++ decoder: dolby_e
++ decoder: eac3
++ decoder: flac
++ decoder: gsm
++ decoder: gsm_ms
++ decoder: ilbc
++ decoder: mp1
++ decoder: mp2
++ decoder: mp3
++ decoder: mp3adu
++ decoder: mp4als
++ decoder: opus
++ decoder: pcm_alaw
++ decoder: pcm_bluray
++ decoder: pcm_dvd
++ decoder: pcm_f16le
++ decoder: pcm_f24le
++ decoder: pcm_f32be
++ decoder: pcm_f32le
++ decoder: pcm_f64be
++ decoder: pcm_f64le
++ decoder: pcm_lxf
++ decoder: pcm_mulaw
++ decoder: pcm_s16be
++ decoder: pcm_s16be_planar
++ decoder: pcm_s16le
++ decoder: pcm_s16le_planar
++ decoder: pcm_s24be
++ decoder: pcm_s24daud
++ decoder: pcm_s24le
++ decoder: pcm_s24le_planar
++ decoder: pcm_s32be
++ decoder: pcm_s32le
++ decoder: pcm_s32le_planar
++ decoder: pcm_s64be
++ decoder: pcm_s64le
++ decoder: pcm_s8
++ decoder: pcm_s8_planar
++ decoder: pcm_sga
++ decoder: pcm_u16be
++ decoder: pcm_u16le
++ decoder: pcm_u24be
++ decoder: pcm_u24le
++ decoder: pcm_u32be
++ decoder: pcm_u32le
++ decoder: pcm_u8
++ decoder: pcm_vidc
++ decoder: sbc
++ decoder: vorbis
++ decoder: text
++ encoder: amv
++ encoder: dvvideo
++ encoder: ffv1
++ encoder: flashsv
++ encoder: flashsv2
++ encoder: flv1
++ encoder: h263
++ encoder: h264
++ encoder: hevc
++ encoder: magicyuv
++ encoder: mpeg1video
++ encoder: mpeg2video
++ encoder: mpeg4
++ encoder: msvideo1
++ encoder: pdv
++ encoder: qtrle
++ encoder: rawvideo
++ encoder: roq
++ encoder: rpza
++ encoder: svq1
++ encoder: utvideo
++ encoder: vnull
++ encoder: vp8
++ encoder: wmv1
++ encoder: wmv2
++ encoder: zmbv
++ encoder: aac
++ encoder: flac
++ encoder: opus
++ encoder: magicyuv
++ encoder: mpeg1video
++ encoder: mpeg2video
++ encoder: mpeg4
++ encoder: msvideo1
++ encoder: pdv
++ encoder: qtrle
++ encoder: rawvideo
++ encoder: roq
++ encoder: rpza
++ encoder: svq1
++ encoder: utvideo
++ encoder: vnull
++ encoder: vp8
++ encoder: wmv1
++ encoder: wmv2
++ encoder: zmbv
++ encoder: aac
++ encoder: flac
++ encoder: opus
 */

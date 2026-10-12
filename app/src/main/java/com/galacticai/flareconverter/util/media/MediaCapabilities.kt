@@ -93,57 +93,144 @@ object MediaCapabilities {
             }
         }
 
-        val cache = mutableMapOf<Boolean?, Map<String, Codec>?>()
+        /**
+         * key: (isDecoder, isEncoder)
+         * - (true, false) = decoders only
+         * - (false, true) = encoders only
+         * - (true, true) = both
+         * - (false, false) = unused sentinel
+         */
+        private val cache = mutableMapOf<Pair<Boolean, Boolean>, List<DeviceCodec>>()
 
-        /** intersects [FFmpeg.codecs] with [Device.codecs] dynamically */
-        fun codecs(
-            /**
-             * - `null` = all
-             * - `true` = [Device.codecsEncoders]
-             * - `false` = [Device.codecsDecoders]
-             */
-            isEncoder: Boolean? = null
-        ): Map<String, Codec>? {
-            if (cache.contains(isEncoder)) return cache[isEncoder]
+        /** cached FFmpeg codecs indexed by isEncoder. */
+        private val ffmpegCodecsCache = mutableMapOf<Boolean?, Map<String, Codec>?>()
 
-            val ffmpegCodecs = FFmpeg.codecs ?: return null
-            val deviceCodecs = when (isEncoder) {
-                true -> Device.codecsEncoders
-                false -> Device.codecsDecoders
-                null -> Device.codecs
-            }
-
-            val deviceTokens = deviceCodecs.flatMap {
-                val mimeTokens = it.mime.key?.toTokens() ?: emptySet()
-                val nameTokens = it.info.name.toTokens()
-                mimeTokens + nameTokens
-            }.toSet().expandSynonyms()
-
-            val result = ffmpegCodecs.filter { (key, codec) ->
-                val keyTokens = key.toTokens()
-                val descTokens = codec.description.toTokens()
-                val codecTokens = (keyTokens + descTokens).expandSynonyms()
-
-                val matches = (deviceTokens.intersect(codecTokens)).isNotEmpty()
-
-                if (!matches) return@filter false
-
-                when (isEncoder) {
-                    true -> codec.canEncode
-                    false -> codec.canDecode
-                    null -> codec.canEncode || codec.canDecode
+        /** get cached FFmpeg codecs with encoder/decoder filtering */
+        private fun getCachedCodecs(isEncoder: Boolean?): Map<String, Codec>? {
+            return ffmpegCodecsCache.getOrPut(isEncoder) {
+                FFmpeg.codecs?.let { codecs ->
+                    when (isEncoder) {
+                        true -> codecs.filterValues { it.canEncode }
+                        false -> codecs.filterValues { it.canDecode }
+                        null -> codecs
+                    }
                 }
             }
+        }
 
-            cache[isEncoder] = result
-            return result
+        /** get cached device codecs filtered by [isDecoder] and [isEncoder] */
+        private fun getCachedDeviceCodecs(
+            isDecoder: Boolean,
+            isEncoder: Boolean
+        ): List<DeviceCodec> {
+            return cache.getOrPut(isDecoder to isEncoder) {
+                Device.codecs.filter { deviceCodec ->
+                    val supportsDecoder = !deviceCodec.info.isEncoder
+                    val supportsEncoder = deviceCodec.info.isEncoder
+                    (!isDecoder || supportsDecoder) &&
+                            (!isEncoder || supportsEncoder)
+                }
+            }
+        }
+
+        private fun Set<String>.fuzzyIntersects(other: Set<String>) =
+                any { other.contains(it) }
+
+        /**
+         * check if a device codec matches an FFmpeg codec by tokens
+         * (expands both sides with synonyms, then checks for any token overlap)
+         */
+        private fun DeviceCodec.matchesFuzzy(ffmpegCodec: Codec): Boolean {
+            val deviceTokens = buildSet {
+                addAll(mime.key?.toTokens() ?: emptySet())
+                addAll(info.name.toTokens())
+            }.expandSynonyms()
+
+            val ffmpegTokens = buildSet {
+                addAll(ffmpegCodec.key.toTokens())
+                addAll(ffmpegCodec.description.toTokens())
+            }.expandSynonyms()
+
+            //? symmetric intersection
+            return deviceTokens.fuzzyIntersects(ffmpegTokens)
+        }
+
+        /**
+         * find the best matching [DeviceCodec] for an FFmpeg [Codec]
+         * @return first match, or null if none found
+         */
+        private fun List<DeviceCodec>.findBestMatch(ffmpegCodec: Codec): DeviceCodec? {
+            return firstOrNull { it.matchesFuzzy(ffmpegCodec) }
+        }
+
+        /**
+         * check if the device can decode the given FFmpeg codec
+         * - matches by [MimeType] or [Codec.key], then verifies decoder capability
+         */
+        fun canDecode(ffmpegCodec: Codec): Boolean {
+            val cachedCodecs = getCachedCodecs(isEncoder = false)
+                ?: return false
+
+            if (cachedCodecs[ffmpegCodec.key] == null) return false
+
+            val deviceDecoders = getCachedDeviceCodecs(isDecoder = true, isEncoder = false)
+            return deviceDecoders.findBestMatch(ffmpegCodec) != null
+        }
+
+        /**
+         * check if the device can encode the given FFmpeg codec
+         * - matches by [MimeType] or [Codec.key], then verifies encoder capability
+         */
+        fun canEncode(ffmpegCodec: Codec): Boolean {
+            val cachedCodecs = getCachedCodecs(isEncoder = true)
+                ?: return false
+
+            if (cachedCodecs[ffmpegCodec.key] == null) return false
+
+            val deviceEncoders = getCachedDeviceCodecs(isDecoder = false, isEncoder = true)
+            return deviceEncoders.findBestMatch(ffmpegCodec) != null
+        }
+
+        /** all FFmpeg codecs that the device can both encode AND decode */
+        fun supportedCodecs(): Set<String> {
+            val allCodecs = getCachedCodecs(null) ?: return emptySet()
+            val deviceDecoders = getCachedDeviceCodecs(isDecoder = true, isEncoder = false)
+            val deviceEncoders = getCachedDeviceCodecs(isDecoder = false, isEncoder = true)
+
+            return allCodecs.keys.filter { key ->
+                val codec = allCodecs[key]
+                    ?: return@filter false
+                val canDecode = deviceDecoders.findBestMatch(codec) != null
+                val canEncode = deviceEncoders.findBestMatch(codec) != null
+                canDecode && canEncode
+            }.toSet()
+        }
+
+        /**
+         * all FFmpeg codecs that the device can decode
+         * - uses cached device decoders to avoid re-scanning
+         */
+        fun decoders(): Map<String, Codec>? {
+            val cachedCodecs = getCachedCodecs(isEncoder = false) ?: return null
+            val deviceDecoders = getCachedDeviceCodecs(isDecoder = true, isEncoder = false)
+            return cachedCodecs.filterKeys {
+                val codec = cachedCodecs[it] ?: return@filterKeys false
+                deviceDecoders.findBestMatch(codec) != null
+            }
+        }
+
+        /**
+         * all FFmpeg codecs that the device can encode
+         * - uses cached device decoders to avoid re-scanning
+         */
+        fun encoders(): Map<String, Codec>? {
+            val cachedCodecs = getCachedCodecs(isEncoder = true) ?: return null
+            val deviceEncoders = getCachedDeviceCodecs(isDecoder = false, isEncoder = true)
+            return cachedCodecs.filterKeys {
+                val codec = cachedCodecs[it] ?: return@filterKeys false
+                deviceEncoders.findBestMatch(codec) != null
+            }
         }
     }
-
-    fun canInput(codec: Codec) =
-            Intersect.codecs(false)?.contains(codec.key)
-
-    fun canOutput(codec: Codec) =
-            Intersect.codecs(true)?.contains(codec.key)
 }
 
