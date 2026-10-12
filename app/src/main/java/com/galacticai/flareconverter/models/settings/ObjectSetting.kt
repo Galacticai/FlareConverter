@@ -13,13 +13,13 @@ import androidx.compose.ui.platform.LocalContext
 import java.io.Serializable
 
 abstract class ObjectSetting<T : Serializable?>(
-    keyName: String,
     val defaultObject: T,
+    keyName: String? = null,
     val fromObject: (T) -> String = { it.toString() },
     val toObject: (String) -> T,
 ) : Setting<String>(
+    defaultObject.toString(),
     keyName,
-    defaultObject.toString()
 ) {
     suspend fun setObject(context: Context, value: T) {
         super.set(context, value.toString())

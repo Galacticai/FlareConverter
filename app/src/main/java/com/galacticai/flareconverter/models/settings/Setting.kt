@@ -8,7 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
-import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
@@ -20,13 +19,17 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.firstOrNull
 
-const val SETTINGS = "settings"
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = SETTINGS)
-
 open class Setting<T>(
-    val keyName: String,
     val defaultValue: T,
+    customKeyName: String? = null,
 ) {
+    val keyName: String = customKeyName
+        ?: (this::class.simpleName ?: defaultValue?.javaClass?.simpleName)
+            ?.let { "Setting.$it" }
+        ?: throw IllegalArgumentException(
+            "Unable to determine a usable key. you must specify `keyName` property for this call"
+        )
+
     @Suppress("UNCHECKED_CAST") //! T is always one of the below types
     val key: Preferences.Key<T> = when (defaultValue) {
         is Boolean -> booleanPreferencesKey(keyName) as Preferences.Key<T>
@@ -39,8 +42,8 @@ open class Setting<T>(
     }
 
     suspend fun get(context: Context): T =
-        context.dataStore.data.firstOrNull()?.get(key)
-            ?: defaultValue
+            context.dataStore.data.firstOrNull()?.get(key)
+                ?: defaultValue
 
     suspend fun set(context: Context, value: T) {
         context.dataStore.edit { it[key] = value }
@@ -70,5 +73,10 @@ open class Setting<T>(
         }
         LaunchedEffect(setting) { setting.setWithoutSaving(get(context)) }
         return setting
+    }
+
+    companion object {
+        const val SETTINGS = "settings"
+        val Context.dataStore by preferencesDataStore(name = SETTINGS)
     }
 }

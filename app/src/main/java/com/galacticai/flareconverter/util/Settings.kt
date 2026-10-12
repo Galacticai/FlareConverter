@@ -1,6 +1,7 @@
 package com.galacticai.flareconverter.util
 
 import com.galacticai.flareconverter.models.MimeType
+import com.galacticai.flareconverter.models.ffmpeg.ff_command.args.FFArg
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.args.FFmpegArg
 import com.galacticai.flareconverter.models.settings.ObjectSetting
 import com.galacticai.flareconverter.models.settings.Setting
@@ -36,18 +37,16 @@ object Settings {
     }
 
     object Theme : ObjectSetting<ColorSchemeSpec>(
-        keyName = "Theme",
         defaultObject = ColorSchemeSpec(false, null),
         toObject = { ColorSchemeSpec.fromJson(it) },
         fromObject = { it.toJson().toString() },
     )
 
     object ConfigEnabled : ObjectSetting<Array<FFmpegArg>>(
-        keyName = "ConfigEnabled",
-        defaultObject = FFmpegArg.entries.toTypedArray(),
+        defaultObject = FFArg.all<FFmpegArg>().values.toTypedArray(),
         toObject = {
-            JSONArray(it).toList { i, array ->
-                FFmpegArg.from(array.getInt(i))
+            JSONArray(it).toList { i, arr ->
+                FFArg.from<FFmpegArg>(arr.getString(i))
             }.toTypedArray()
         },
         fromObject = { JSONArray(it.map { arg -> arg.id }).toString() },
@@ -60,75 +59,35 @@ object Settings {
                     10.0,
                     BinarySystem.gibi() and BaseUnit(Affix.byte())
                 )
-
-//
-//            val bitrates
-//                get():List<BitValue> {
-//                    fun map(i: Int) = (i + 1) * 100 * BitUnitExponent.Binary.Kibi.toBaseMultiplier
-//                    val kb = List(20) { map(it) } +
-//                            List(20) { map(it * 10) } +
-//                            List(20) { map(it * 100) }
-//                    return kb.map {
-//                        BitValue(
-//                            it,
-//                            BitUnit.BasicByte(BitUnitExponent.Binary.Kibi)
-//                        )
-//                    }
-//                }
         }
 
         /** 0 = pick from file info */
-        object FrameCount : Setting<Int>(
-            keyName = "FrameCount",
-            defaultValue = 0,
-        )
+        object FrameCount : Setting<Int>(0)
 
         /** 0 = pick from file info */
-        object FrameRate : Setting<Int>(
-            keyName = "FrameRate",
-            defaultValue = 0,
-        )
+        object FrameRate : Setting<Int>(0)
 
         /** 0 = pick from file info */
-        object SampleRate : Setting<Int>(
-            keyName = "SampleRate",
-            defaultValue = 0,
-        )
+        object SampleRate : Setting<Int>(0)
 
         /** 0 = pick from file info */
-        object Channels : Setting<Int>(
-            keyName = "Channels",
-            defaultValue = 0,
-        )
+        object Channels : Setting<Int>(0)
 
         /** null = pick from file info */
-        object Bitrate : Setting<Double>(
-            keyName = "BitrateOverall",
-            defaultValue = 0.0,
-        )
+        object Bitrate : Setting<Double>(0.0)
 
         /** 0 = pick from file info */
-        object BitrateVideo : Setting<Double>(
-            keyName = "BitrateVideo",
-            defaultValue = 0.0,
-        )
+        object BitrateVideo : Setting<Double>(0.0)
 
         /** 0 = pick from file info */
-        object BitrateAudio : Setting<Double>(
-            keyName = "BitRateBitrateAudio",
-            defaultValue = 0.0,
-        )
+        object BitrateAudio : Setting<Double>(0.0)
 
         object Resolution : ObjectSetting<ResolutionClass>(
-            keyName = "Resolution",
             defaultObject = ResolutionClass.zero,
             toObject = { ResolutionClass.fromJsonString(it) },
             fromObject = { it.toJson().toString() }
         )
 
-        object MaxSize : Setting<Double>(
-            keyName = "MaxSize",
-            defaultValue = Defaults.maxSize.baseValue
-        )
+        object MaxSize : Setting<Double>(Defaults.maxSize.baseValue)
     }
 }
