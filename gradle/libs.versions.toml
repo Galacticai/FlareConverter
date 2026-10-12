@@ -22,6 +22,8 @@ startupRuntime = "1.2.0"
 uiGraphics = "1.12.1"
 
 [libraries]
+androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3Exoplayer" }
 androidx-media3-extractor = { module = "androidx.media3:media3-extractor", version.ref = "media3Exoplayer" }
@@ -60,4 +62,3 @@ androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graph
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-

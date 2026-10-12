@@ -63,7 +63,8 @@ dependencies {
     implementation(libs.androidx.startup.runtime)
     debugImplementation(libs.androidx.ui.tooling)
 
-    implementation(platform(libs.androidx.compose.bom))
+    val composeBomPlatform = platform(libs.androidx.compose.bom)
+    implementation(composeBomPlatform)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.activity.compose)
@@ -90,10 +91,15 @@ dependencies {
 //    implementation(libs.androidx.media3.inspector)
 //    implementation(libs.androidx.media3.extractor)
 
-//    implementation(libs.ffmpeg.kit.full)
-//    implementation(libs.smart.exception.java)
+    //! deprecated: missing features + has bugs + old version
+    //  implementation(libs.ffmpeg.kit.full)
+    //  implementation(libs.smart.exception.java)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(composeBomPlatform)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation(kotlin("reflect"))
 }
