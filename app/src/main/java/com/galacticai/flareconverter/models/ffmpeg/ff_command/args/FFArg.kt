@@ -11,7 +11,7 @@ sealed class FFArg(
     title: String? = null,
 ) : Comparable<FFArg> {
     val id = listOfNotNull(
-        order.ordinal, argKey, title,
+        this::class.java.simpleName, order.ordinal, argKey, title,
     ).joinToString("-")
 
     override fun compareTo(other: FFArg): Int = when {
