@@ -28,7 +28,7 @@ object FlowUtil {
                     get() = state.value
                     set(v) {
                         flow.update {
-                            it.toMutableMap().apply { this[key] = v }
+                            it.toMutableMap().apply { this[key] = v }.toMap()
                         }
                     }
             }

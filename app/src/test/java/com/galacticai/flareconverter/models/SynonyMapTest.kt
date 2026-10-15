@@ -8,7 +8,7 @@ class SynonyMapTest {
 
     @Test
     fun testSynonyMapOperations() {
-        val synMap = SynonyMap(
+        val synMap = Synonyms(
             setOf("3gpp", "amr", "amrnb"),
             setOf("g711", "mlaw", "alaw")
         )
@@ -16,6 +16,6 @@ class SynonyMapTest {
         assertTrue(synMap.contains("amr"))
         assertTrue(synMap.contains("mlaw"))
         assertEquals(setOf("3gpp", "amr", "amrnb"), synMap["amrnb"])
-        assertEquals(emptySet<String>(), synMap["unknown"])
+        assertEquals(null, synMap["unknown"])
     }
 }

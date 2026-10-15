@@ -18,9 +18,9 @@ class CodecIntersectionTest {
         assertNotNull("FFmpeg codecs should not be null", ffmpegCodecs)
         assertNotNull("Device codecs should not be null", deviceCodecs)
 
-        val supportedCodecs = MediaCapabilities.Intersect.supportedCodecs()
-        val decoders = MediaCapabilities.Intersect.decoders()
-        val encoders = MediaCapabilities.Intersect.encoders()
+        val supportedCodecs = MediaCapabilities.Supported.supportedCodecs()
+        val decoders = MediaCapabilities.Supported.decoders()
+        val encoders = MediaCapabilities.Supported.encoders()
 
         assertNotNull("Supported codecs set should not be null", supportedCodecs)
         assertNotNull("Decoders map should not be null", decoders)
@@ -32,7 +32,7 @@ class CodecIntersectionTest {
         )
 
         decoders?.values?.firstOrNull()?.let {
-            val canDecode = MediaCapabilities.Intersect.canDecode(it)
+            val canDecode = MediaCapabilities.Supported.canDecode(it)
             Log.d(
                 "CodecIntersectionTest",
                 "Sample decoder check for ${it.key}: canDecode=$canDecode"
@@ -40,7 +40,7 @@ class CodecIntersectionTest {
         }
 
         encoders?.values?.firstOrNull()?.let {
-            val canEncode = MediaCapabilities.Intersect.canEncode(it)
+            val canEncode = MediaCapabilities.Supported.canEncode(it)
             Log.d(
                 "CodecIntersectionTest",
                 "Sample encoder check for ${it.key}: canEncode=$canEncode"
@@ -66,10 +66,14 @@ class CodecIntersectionTest {
 
             decoders?.none { (key, codec) ->
                 val codecTokens = buildSet {
-                    addAll(key.lowercase().split(Regex("[^a-z0-9]+")).filter { it.length > 1 })
                     addAll(
-                        codec.description.lowercase().split(Regex("[^a-z0-9]+"))
-                            .filter { it.length > 1 })
+                        key.lowercase().split(Regex("[^a-z0-9]+")).filter { it.length > 1 }
+                    )
+                    codec.description?.let {
+                        addAll(
+                            it.lowercase().split(Regex("[^a-z0-9]+")).filter { it.length > 1 }
+                        )
+                    }
                 }
                 (deviceTokens.intersect(codecTokens)).isNotEmpty()
             } ?: true

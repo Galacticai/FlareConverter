@@ -4,7 +4,11 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.galacticai.flareconverter.models.ffmpeg.ff_command.args.FFArg
+import com.galacticai.flareconverter.models.ffmpeg.ff_command.args.FFmpegArg
+import global.common.util.JsonUtil.toList
 import kotlinx.coroutines.runBlocking
+import org.json.JSONArray
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -19,6 +23,7 @@ class SettingInstrumentedTest {
 
     data class TestUser(val name: String, val age: Int) : Serializable {
         override fun toString(): String = "$name,$age"
+
         companion object {
             fun fromString(s: String): TestUser {
                 val parts = s.split(",")
@@ -143,6 +148,32 @@ class SettingInstrumentedTest {
         // Verify that object setting was saved and can be retrieved from another place
         runBlocking {
             assertEquals(updatedUser, userSetting.getObject(context))
+        }
+    }
+
+    @Test
+    fun testObjectSettingValue() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+
+        val setting = object : ObjectSetting<Array<FFmpegArg>>(
+            defaultObject = FFArg.all<FFmpegArg>().values.toTypedArray(),
+            toObject = {
+                JSONArray(it).toList { i, arr ->
+                    FFArg.from<FFmpegArg>(arr.getString(i))
+                }.toTypedArray()
+            },
+            fromObject = {
+                JSONArray(it.map { arg -> arg.id }).toString()
+            },
+        ) {}
+        runBlocking {
+            val expected = arrayOf(FFmpegArg.Input, FFmpegArg.Output)
+            setting.setObject(context, expected)
+            val actual = setting.getObject(context)
+            assertEquals(
+                expected.map { it.id },
+                actual.map { it.id },
+            )
         }
     }
 }
