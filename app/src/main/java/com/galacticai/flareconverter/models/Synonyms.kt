@@ -1,6 +1,6 @@
 package com.galacticai.flareconverter.models
 
-class SynonyMap<T> {
+class Synonyms<T> : Iterable<Set<T>> {
     constructor(vararg groups: Iterable<T>) : this(groups.toList())
     constructor(groups: Iterable<Iterable<T>>) {
         for (group in groups) add(group)
@@ -11,6 +11,8 @@ class SynonyMap<T> {
 
     val size get() = _groups.flatten().size
 
+    override fun iterator(): Iterator<Set<T>> = _groups.iterator()
+    
     fun groupIndexOf(key: T) = groups.indexOfFirst {
         key in it
     }
@@ -21,9 +23,9 @@ class SynonyMap<T> {
 
     fun contains(key: T) = groupIndexOf(key) >= 0
 
-    operator fun get(key: T): Set<T> {
+    operator fun get(key: T): Set<T>? {
         val i = groupIndexOf(key)
-        return if (i >= 0) groups[i] else emptySet()
+        return if (i >= 0) groups[i] else null
     }
 
     /**
@@ -54,5 +56,17 @@ class SynonyMap<T> {
         if (_groups[i].size == 1) _groups.removeAt(i)
         else _groups[i] = _groups[i] - synonym
         return true
+    }
+
+
+    companion object {
+        /** expand [this] list with by adding all the matching [synonyms] */
+        fun <T> Iterable<T>.withSynonyms(synonyms: Synonyms<T>) =
+                map { synonyms[it] ?: setOf(it) }
+
+        /** expand [this] list with by adding all the matching [synonyms] (flattened)
+         * @see withSynonyms */
+        fun <T> Iterable<T>.withSynonymsFlat(synonyms: Synonyms<T>) =
+                withSynonyms(synonyms).flatten()
     }
 }

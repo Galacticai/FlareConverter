@@ -5,6 +5,7 @@ import com.galacticai.flareconverter.models.ffmpeg.media_info.media_stream.Parse
 import com.galacticai.flareconverter.models.ffmpeg.media_info.media_stream.ParsedMediaStream.Companion.main
 import com.galacticai.flareconverter.models.ffmpeg.media_info.media_stream.ParsedMediaStreamsMainMap
 import com.galacticai.flareconverter.models.ffmpeg.media_info.media_stream.ParsedMediaStreamsMap
+import com.galacticai.flareconverter.models.mimes.MimeType
 import com.galacticai.flareconverter.util.MimeTypeUtils.codecType
 import com.galacticai.flareconverter.util.media.FFInfo.parseMediaStreams
 import java.io.File

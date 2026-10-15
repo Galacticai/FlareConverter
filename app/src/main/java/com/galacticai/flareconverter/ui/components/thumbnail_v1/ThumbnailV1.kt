@@ -23,7 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.galacticai.flareconverter.models.MimeType
+import com.galacticai.flareconverter.models.mimes.MimeType
 import com.galacticai.flareconverter.ui.components.thumbnail_v1.Thumbnail.CenterBox
 import com.galacticai.flareconverter.ui.components.thumbnail_v1.Thumbnail.thumbnailPadding
 import com.galacticai.flareconverter.ui.components.thumbnail_v1.components.ThumbnailColumn

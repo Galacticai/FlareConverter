@@ -5,7 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalInspectionMode
-import com.galacticai.flareconverter.models.MimeType
+import com.galacticai.flareconverter.models.mimes.MimeType
 import com.galacticai.flareconverter.ui.components.LabeledIcon
 import com.galacticai.flareconverter.ui.components.thumbnail_v1.Thumbnail
 import com.galacticai.flareconverter.ui.components.thumbnail_v1.Thumbnail.Audio
@@ -26,12 +26,7 @@ class FinishedThumbnailRenderer(
         val isPreview = LocalInspectionMode.current
         val file = targetFuture.value
         val mimeCategoryParsed = remember(mimeCategory) {
-            mimeCategory
-                ?: MimeType.from(
-                    file,
-                    acceptAnything = true,
-                    allowUnsupported = true
-                )?.category
+            mimeCategory ?: MimeType.from(file)?.category
         }
         if (isPreview) Thumbnail.CenterBox {
             Text(mimeCategoryParsed ?: "Unsupported")

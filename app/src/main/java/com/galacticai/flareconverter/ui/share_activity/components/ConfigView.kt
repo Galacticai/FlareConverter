@@ -34,8 +34,35 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.galacticai.flareconverter.models.MediaFile
-import com.galacticai.flareconverter.models.MimeType
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.args.FFmpegArg
+import com.galacticai.flareconverter.models.mimes.MimeType.Aac
+import com.galacticai.flareconverter.models.mimes.MimeType.Apng
+import com.galacticai.flareconverter.models.mimes.MimeType.Avi
+import com.galacticai.flareconverter.models.mimes.MimeType.Bmp
+import com.galacticai.flareconverter.models.mimes.MimeType.Flac
+import com.galacticai.flareconverter.models.mimes.MimeType.Flv
+import com.galacticai.flareconverter.models.mimes.MimeType.Gif
+import com.galacticai.flareconverter.models.mimes.MimeType.Heic
+import com.galacticai.flareconverter.models.mimes.MimeType.Jpeg
+import com.galacticai.flareconverter.models.mimes.MimeType.M4a
+import com.galacticai.flareconverter.models.mimes.MimeType.M4v
+import com.galacticai.flareconverter.models.mimes.MimeType.Mkv
+import com.galacticai.flareconverter.models.mimes.MimeType.Mp3
+import com.galacticai.flareconverter.models.mimes.MimeType.Mp4
+import com.galacticai.flareconverter.models.mimes.MimeType.Mpeg
+import com.galacticai.flareconverter.models.mimes.MimeType.Mpeg4
+import com.galacticai.flareconverter.models.mimes.MimeType.Ogg
+import com.galacticai.flareconverter.models.mimes.MimeType.Ogv
+import com.galacticai.flareconverter.models.mimes.MimeType.Opus
+import com.galacticai.flareconverter.models.mimes.MimeType.Png
+import com.galacticai.flareconverter.models.mimes.MimeType.Quicktime
+import com.galacticai.flareconverter.models.mimes.MimeType.Svg
+import com.galacticai.flareconverter.models.mimes.MimeType.Tiff
+import com.galacticai.flareconverter.models.mimes.MimeType.Wav
+import com.galacticai.flareconverter.models.mimes.MimeType.Webm
+import com.galacticai.flareconverter.models.mimes.MimeType.Webp
+import com.galacticai.flareconverter.models.mimes.MimeType.Wma
+import com.galacticai.flareconverter.models.mimes.MimeType.Wmv
 import com.galacticai.flareconverter.ui.components.Expandable
 import com.galacticai.flareconverter.ui.components.View
 import com.galacticai.flareconverter.ui.components.expressive.rememberExpressiveRadius
@@ -280,13 +307,17 @@ private fun Preview() {
         verticalArrangement = Arrangement.spacedBy(Consistent.Pad.smallX),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        MimeTypeView(MimeType.Png)
+        MimeTypeView(Png)
         Icon(
             Icons.Rounded.KeyboardArrowDown,
             "mime type from-to arrow"
         )
         MimeTypeSelectByCategory(
-            allowedMimes = MimeType.Outputs.image
+            allowedMimes = setOf(
+                Avi, Flv, Webm, Mkv, Mp4, Mpeg4, M4v, Mpeg, Quicktime, Ogv, Wmv,
+                Gif, Bmp, Tiff, Svg, Png, Apng, Jpeg, Webp, Heic,
+                M4a, Mp3, Aac, Wav, Ogg, Flac, Wma, Opus,
+            )
         ) { }
     }
 }

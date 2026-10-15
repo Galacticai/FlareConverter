@@ -3,6 +3,8 @@ package com.galacticai.flareconverter.models
 import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
+import com.galacticai.flareconverter.models.mimes.MimeType
+import com.galacticai.flareconverter.util.media.MediaCapabilities
 import global.common.util.ActivityUtil.getParcel
 import global.common.util.IOUtil.extensionFromMime
 
@@ -12,7 +14,7 @@ data class ShareInfo(
     /** raw mime type from [ContentResolver] */
     val mimeRaw: String,
     val extension: String,
-    /** mime represented with supported [MimeType] */
+    /** mime represented with supported [com.galacticai.flareconverter.models.mimes.MimeType] */
     val inMime: MimeType,
     /** allowed [MimeType]s for the given [inMime] */
     val outMimes: Set<MimeType>,
@@ -24,11 +26,11 @@ data class ShareInfo(
         extension = mime.extension,
         mimeRaw = mime.mime,
         inMime = mime,
-        outMimes = MimeType.Outputs.of(inMime.category)
+        outMimes = mime.outMimes
             ?: return run {
                 onFail?.invoke("Cannot convert from this type: $inMime")
                 null
-            }
+            },
     )
 
     companion object {
@@ -46,30 +48,34 @@ data class ShareInfo(
                 return null
             }
             val uri = intent.getParcel<Uri>(Intent.EXTRA_STREAM)
-            if (uri == null) {
-                onFail("Missing Uri in intent extra stream")
-                return null
-            }
+                ?: return run {
+                    onFail("Missing Uri in intent extra stream")
+                    null
+                }
             val mimeString = contentResolver.getType(uri)
-            if (mimeString == null) {
-                onFail("Unknown file type: $uri")
-                return null
-            }
+                ?: return run {
+                    onFail("Unknown file type: $uri")
+                    null
+                }
             val extension = mimeString.extensionFromMime
-            if (extension == null) {
-                onFail("Unknown file extension: $mimeString")
-                return null
-            }
-            val inMime = MimeType.from(mimeString)
-            if (inMime == null) {
-                onFail("Unsupported file type: $mimeString")
-                return null
-            }
-            val outMimes = MimeType.Outputs.of(inMime.category)
-            if (outMimes == null) {
-                onFail("Cannot convert from this type: $inMime")
-                return null
-            }
+                ?: return run {
+                    onFail("Unknown file extension: $mimeString")
+                    null
+                }
+            val inMime = MediaCapabilities.Supported.getMime(mimeString)
+                ?: return run {
+                    onFail(
+                        "Unsupported file type: $mimeString"
+                                + "\nSupported mimes:\n"
+                                + MediaCapabilities.Supported.mimes().joinToString("\n") { it.mime }
+                    )
+                    null
+                }
+            val outMimes = inMime.outMimes
+                ?: return run {
+                    onFail("Cannot convert from this type: $inMime")
+                    null
+                }
             return ShareInfo(uri, mimeString, extension, inMime, outMimes)
         }
     }

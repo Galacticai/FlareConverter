@@ -18,11 +18,11 @@ abstract class ObjectSetting<T : Serializable?>(
     val fromObject: (T) -> String = { it.toString() },
     val toObject: (String) -> T,
 ) : Setting<String>(
-    defaultObject.toString(),
+    fromObject(defaultObject),
     keyName,
 ) {
     suspend fun setObject(context: Context, value: T) {
-        super.set(context, value.toString())
+        super.set(context, fromObject(value))
     }
 
     suspend fun getObject(context: Context): T {
@@ -43,17 +43,22 @@ abstract class ObjectSetting<T : Serializable?>(
     @Composable
     fun rememberObject(saveable: Boolean = false, vararg keys: Any?): MutableState<T> {
         val context = LocalContext.current
-        val setting =
-                if (saveable) rememberSaveable(
-                    *keys,
-                    saver = Saver(
-                        save = { it.value.toString() },
-                        restore = { mutableStateOf(defaultObject) }
-                    )
-                ) { mutableStateOf(defaultObject) }
-                else remember(*keys) { mutableStateOf(defaultObject) }
+        val setting: MutableState<T> = if (saveable) {
+            rememberSaveable(
+                *keys,
+                saver = Saver(
+                    save = { fromObject(it.value) },
+                    restore = { saved -> mutableStateOf(toObject(saved)) }
+                )
+            ) {
+                mutableStateOf(defaultObject)
+            }
+        } else remember(*keys) { mutableStateOf(defaultObject) }
 
-        LaunchedEffect(Unit) { setting.value = getObject(context) }
+        LaunchedEffect(setting) {
+            setting.value = getObject(context)
+        }
+        
         return setting
     }
 }

@@ -1,8 +1,6 @@
 package com.galacticai.flareconverter.ui.components.mime_type
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.Videocam
 import androidx.compose.material.icons.rounded.Audiotrack
 import androidx.compose.material.icons.rounded.BrokenImage
 import androidx.compose.material.icons.rounded.Image
@@ -11,7 +9,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.galacticai.flareconverter.models.MimeType
+import com.galacticai.flareconverter.models.mimes.MimeType
 
 @Composable
 fun MimeIcon(mimeCategory: String, modifier: Modifier = Modifier) {

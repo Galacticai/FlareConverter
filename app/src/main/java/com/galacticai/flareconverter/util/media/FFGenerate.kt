@@ -3,9 +3,9 @@ package com.galacticai.flareconverter.util.media
 import androidx.annotation.FloatRange
 import com.galacticai.flareconverter.models.MediaFile
 import com.galacticai.flareconverter.models.MediaFileBase
-import com.galacticai.flareconverter.models.MimeType
 import com.galacticai.flareconverter.models.exceptions.FFmpegFailed
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.FFmpegCommand
+import com.galacticai.flareconverter.models.mimes.MimeType
 import com.galacticai.flareconverter.util.Pixels
 import global.common.util.IOUtil.toExtension
 
@@ -21,7 +21,7 @@ object FFGenerate {
         }
 
         val mimeNew = MimeType.Jpeg
-        val frame = media.fileInfo.file.toExtension(mimeNew.extension)
+        val frame = media.fileInfo.file.toExtension(mimeNew.extension!!)
 
         if (frame.exists()) {
             //? skip: when the ui reloads (theme changed / screen rotated / or whatever)
@@ -35,7 +35,7 @@ object FFGenerate {
             ?.scale(.5f)
             ?.maxHeight(Pixels.P1080.p)
             ?.maxWidth(Pixels.P1080.p)
-            ?: throw FFmpegFailed("Invalid ${MimeType.VIDEO} file: unknown resolution")
+            ?: throw FFmpegFailed("Invalid $MimeType.VIDEO file: unknown resolution")
 
         FFmpegCommand().hideBanner()
             .apply { if (msFrame > 0) startTime(msFrame) }

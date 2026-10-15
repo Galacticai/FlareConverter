@@ -39,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -49,11 +50,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.galacticai.flareconverter.models.MediaFile
-import com.galacticai.flareconverter.models.MimeType
 import com.galacticai.flareconverter.models.exceptions.FFmpegArgNoView
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.FFmpegCommand
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.args.FFmpegArg
 import com.galacticai.flareconverter.models.ffmpeg.media_info.MediaInfo
+import com.galacticai.flareconverter.models.mimes.MimeType
 import com.galacticai.flareconverter.ui.components.inputs.BitrateInput
 import com.galacticai.flareconverter.ui.components.inputs.resolution_input.ResolutionInput
 import com.galacticai.flareconverter.ui.components.mime_type.MimeTypeSelectByCategory
@@ -66,6 +67,7 @@ import com.galacticai.flareconverter.util.FlowUtil.collectSingleAsState
 import com.galacticai.flareconverter.util.MimeTypeUtils.outMimeSetting
 import com.galacticai.flareconverter.util.Resolution
 import com.galacticai.flareconverter.util.Settings
+import com.galacticai.flareconverter.util.media.MediaCapabilities
 import global.common.ui.ExpandableGroup
 import global.common.util.IOUtil.toExtension
 import org.json.JSONObject
@@ -116,6 +118,12 @@ private val inOut: FFmpegArgViewRenderer
             FFmpegArg.Output, parseOutput()
         )
 
+        val allowedMimes by remember(outMime.category) {
+            derivedStateOf {
+                MediaCapabilities.Supported.mimesByCategory(outMime.category)
+            }
+        }
+
         Column(
             modifier,
             verticalArrangement = Arrangement.spacedBy(Consistent.Pad.smallX),
@@ -127,7 +135,7 @@ private val inOut: FFmpegArgViewRenderer
                 "mime type from-to arrow"
             )
             MimeTypeSelectByCategory(
-                allowedMimes = sInfo.outMimes //! critical: allow outMimes only
+                allowedMimes = allowedMimes
             ) {
                 outMime = it
                 val inputParsed = parseInput()

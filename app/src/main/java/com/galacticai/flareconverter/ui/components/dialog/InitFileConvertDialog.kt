@@ -23,7 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.galacticai.flareconverter.models.MimeType
+import com.galacticai.flareconverter.models.mimes.MimeType
 import com.galacticai.flareconverter.ui.components.mime_type.MimeTypeView
 import com.galacticai.flareconverter.ui.themes.GalacticTheme
 import com.galacticai.flareconverter.util.Consistent

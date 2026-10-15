@@ -1,13 +1,10 @@
 package com.galacticai.flareconverter.util
 
-import com.galacticai.flareconverter.models.MimeType
 import com.galacticai.flareconverter.models.ffmpeg.media_info.codec.CodecType
+import com.galacticai.flareconverter.models.mimes.MimeType
 
 object MimeTypeUtils {
-    @get:Deprecated("use `MimeTypeView` instead")
-    val MimeType.dashed get() = "$category — $key" //? yes I write em dash, not AI
-
-    val String.isMimeType get() = MimeType.regex.matches(this)
+    val String.isMimeType get() = MimeType.REGEX.matches(this)
 
     /** Get the [Settings.OutMime] for this [MimeType] */
     val MimeType.outMimeSetting get() = Settings.OutMime(this)

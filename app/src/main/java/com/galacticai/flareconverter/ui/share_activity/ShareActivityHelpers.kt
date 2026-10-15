@@ -11,12 +11,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.galacticai.flareconverter.models.ConvertStage
 import com.galacticai.flareconverter.models.MediaFile
-import com.galacticai.flareconverter.models.MimeType
 import com.galacticai.flareconverter.models.ShareInfo
 import com.galacticai.flareconverter.models.exceptions.FFmpegFailed
 import com.galacticai.flareconverter.models.exceptions.InvalidLaunchCommand
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.FFmpegCommand.Companion.toCommand
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.args.FFmpegArg
+import com.galacticai.flareconverter.models.mimes.MimeType
 import com.galacticai.flareconverter.ui.share_activity.components.LocalShareActivityStates.LocalConfigListState
 import com.galacticai.flareconverter.util.MimeTypeUtils.outMimeSetting
 import com.galacticai.flareconverter.util.media.FFInfo
@@ -124,10 +124,11 @@ class ShareActivityHelpers(private val activity: ShareActivity) {
         progress(.7f)
 
         //! intentional: will also trigger the lazy loaders in `InformedFile`
-        if (informedFile.mainStreamMime == null) return run {
-            fail(FFmpegFailed("Failed to parse media streams"))
-            null
-        }
+        informedFile.mainStreamMime
+            ?: return run {
+                fail(FFmpegFailed("Failed to parse media streams"))
+                null
+            }
 
         progress(1f)
         vm.inFileFlow.update {

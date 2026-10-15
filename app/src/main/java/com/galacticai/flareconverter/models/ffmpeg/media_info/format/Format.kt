@@ -11,18 +11,19 @@ data class Format(
     val isDevice: Boolean,
     /** index */
     val key: String,
-    val description: String,
+    val description: String? = null,
 ) {
     companion object {
         /** example: `DEd name          description description` */
-        val regex = Regex("""^([D ])([E ])([d ])\s+(\w+)\s+(.+)$""")
+        val regex = Regex("""^\s*([D ])([E ])([d ])\s+(\w+)(?:\s+(.+))?$""")
         fun from(raw: String) = try {
             val (D, E, d, key, description) = regex.matchEntire(raw)!!.destructured
             Format(
                 D == "D",
                 E == "E",
                 d == "d",
-                key, description,
+                key,
+                description.takeIf { it.isNotBlank() },
             )
         } catch (_: Exception) {
             null

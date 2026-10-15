@@ -1,7 +1,6 @@
 package com.galacticai.flareconverter.util.media
 
 import android.util.Log
-import com.galacticai.flareconverter.models.MimeType
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.FFprobeCommand
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.LogLevel
 import com.galacticai.flareconverter.models.ffmpeg.media_info.MediaInfo
@@ -11,6 +10,7 @@ import com.galacticai.flareconverter.models.ffmpeg.media_info.media_stream.MScor
 import com.galacticai.flareconverter.models.ffmpeg.media_info.media_stream.MutableParsedMediaStreamsMap
 import com.galacticai.flareconverter.models.ffmpeg.media_info.media_stream.ParsedMediaStream
 import com.galacticai.flareconverter.models.ffmpeg.media_info.media_stream.ParsedMediaStreamsMap
+import com.galacticai.flareconverter.models.mimes.MimeType
 import com.galacticai.flareconverter.util.Resolution
 import java.io.File
 
@@ -22,7 +22,11 @@ object FFInfo {
         .printFormat("json=compact=1")
         .showFormat()
         .showStreams()
-        .apply { if (mime in MimeType.Inputs.hasStreamGroup) showStreamGroups() }
+        .apply {
+            val hasStreamGroupsKeys = MimeType.HAS_STREAM_GROUP.flatMap { it.keys }.toSet()
+            val hasStreamGroup = mime.keys.any { it in hasStreamGroupsKeys }
+            if (hasStreamGroup) showStreamGroups()
+        }
         .run { MediaInfo(it.output) }
 
     /** @return

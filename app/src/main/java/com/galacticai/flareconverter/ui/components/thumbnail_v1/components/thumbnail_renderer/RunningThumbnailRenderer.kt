@@ -77,27 +77,27 @@ class RunningThumbnailRenderer(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-private fun RunningThumbnailV1RendererPreview() = GalacticTheme {
-    val sliderState = rememberSliderState(.5f)
-    val future = Progressive.Running<File>(
-        Progressive.Running.Type.Main,
-        sliderState.value,
-        null, Date(),
-    )
-    LaunchedEffect(sliderState.value) {
-        future.progress = sliderState.value
-    }
-
-    Column(Modifier.padding(10.dp)) {
-        ThumbnailV1(
-            Modifier
-                .aspectRatio(1f)
-                .padding(20.dp),
-            inFile = future
-        )
-
-        Slider(sliderState)
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun RunningThumbnailV1RendererPreview() = GalacticTheme {
+//    val sliderState = rememberSliderState(.5f)
+//    val future = Progressive.Running<File>(
+//        Progressive.Running.Type.Main,
+//        sliderState.value,
+//        null, Date(),
+//    )
+//    LaunchedEffect(sliderState.value) {
+//        future.progress = sliderState.value
+//    }
+//
+//    Column(Modifier.padding(10.dp)) {
+//        ThumbnailV1(
+//            Modifier
+//                .aspectRatio(1f)
+//                .padding(20.dp),
+//            inFile = future
+//        )
+//
+//        Slider(sliderState)
+//    }
+//}

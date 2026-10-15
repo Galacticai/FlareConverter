@@ -1,11 +1,12 @@
 package com.galacticai.flareconverter.util
 
-import com.galacticai.flareconverter.models.MimeType
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.args.FFArg
 import com.galacticai.flareconverter.models.ffmpeg.ff_command.args.FFmpegArg
+import com.galacticai.flareconverter.models.mimes.MimeType
 import com.galacticai.flareconverter.models.settings.ObjectSetting
 import com.galacticai.flareconverter.models.settings.Setting
 import com.galacticai.flareconverter.ui.themes.models.ColorSchemeSpec
+import com.galacticai.flareconverter.util.media.MediaCapabilities
 import global.common.models.amount.Amount
 import global.common.models.amount.affixes.Affix
 import global.common.models.amount.units.BaseUnit
@@ -32,7 +33,7 @@ object Settings {
                 get() = "LastSelectedMime_${this.category.toSettingsKey()}"
 
             private fun defaultObject(mimeType: MimeType) =
-                    MimeType.Outputs.of(mimeType.category)!!.first()
+                    MediaCapabilities.Supported.mimesByCategory(mimeType.category).first()
         }
     }
 
@@ -49,7 +50,9 @@ object Settings {
                 FFArg.from<FFmpegArg>(arr.getString(i))
             }.toTypedArray()
         },
-        fromObject = { JSONArray(it.map { arg -> arg.id }).toString() },
+        fromObject = {
+            JSONArray(it.map { arg -> arg.id }).toString()
+        },
     )
 
     object FFmpeg {

@@ -25,14 +25,13 @@ data class Encoder(
     val supportsDirectRendering: Boolean,
     /** index */
     val key: String,
-    val description: String,
+    val description: String? = null,
 ) {
     companion object {
         /** example: `...... name          description description`*/
-        val regex = Regex("""^([VAS.])([F.])([S.])([C.])([B.])([D.])\s+(\w+)\s*(.*)$""")
+        val regex = Regex("""^\s*([VAS.])([F.])([S.])([C.])([B.])([D.])\s+(\w+)(?:\s+(.+))?$""")
 
         /** @param raw `DE!ILS     key     description may have spaces too` */
-        @JvmStatic
         fun from(raw: String) = try {
             val (typeRaw, F, S, C, B, D, key, description) = regex.matchEntire(raw.trim())!!.destructured
             val type = EncoderType.from(typeRaw)!!
@@ -43,7 +42,8 @@ data class Encoder(
                 C == "C",
                 B == "B",
                 D == "D",
-                key, description
+                key,
+                description.trim().takeIf { it.isNotEmpty() }
             )
         } catch (_: Throwable) {
             null

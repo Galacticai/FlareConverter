@@ -27,14 +27,13 @@ data class Codec(
     val lossless: Boolean,
     /** index */
     val key: String,
-    val description: String,
+    val description: String? = null,
 ) {
     companion object {
         /** example: `DEAILS name          description description`*/
-        val regex = Regex("""^([D.])([E.])([AVSDT.])([I.])([L.])([S.])\s+(\w+)\s*(.*)$""")
+        val regex = Regex("""^\s*([D.])([E.])([AVSDT.])([I.])([L.])([S.])\s+(\w+)(?:\s+(.+))?$""")
 
         /** @param raw `DE!ILS     key     description may have spaces too` */
-        @JvmStatic
         fun from(raw: String) = try {
             val (D, E, typeRaw, I, L, S, key, description) = regex.matchEntire(raw.trim())!!.destructured
             val type = CodecType.from(typeRaw)!!
@@ -45,7 +44,8 @@ data class Codec(
                 I == "I",
                 L == "L",
                 S == "S",
-                key, description
+                key,
+                description.trim().takeIf { it.isNotEmpty() }
             )
         } catch (_: Exception) {
             null

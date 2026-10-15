@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SplitButton
+import androidx.compose.material3.SplitButtonLayout
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,8 +20,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.galacticai.flareconverter.models.MimeType
+import com.galacticai.flareconverter.models.mimes.MimeType
 import com.galacticai.flareconverter.util.Consistent
+import com.galacticai.flareconverter.util.media.MediaCapabilities
 import global.common.ui.ExpandIcon
 import global.common.ui.SplitMenu
 import global.common.util.TextUtil.sentenceCase
@@ -39,12 +40,12 @@ object MimeTypeSelect {
     }
 }
 
-/** select [MimeType] by category and type ([SplitButton]) */
+/** select [MimeType] by category and type ([SplitButtonLayout]) */
 @Composable
 fun MimeTypeSelectByCategory(
     modifier: Modifier = Modifier,
     /** allowed mime categories */
-    allowedMimes: Set<MimeType> = MimeType.Inputs.all,
+    allowedMimes: Set<MimeType> = MediaCapabilities.Supported.mimes(),
     onSelect: (MimeType) -> Unit
 ) {
     val categories by remember {
@@ -53,7 +54,7 @@ fun MimeTypeSelectByCategory(
         }
     }
     assert(categories.isNotEmpty())
-    val categoriesSet = MimeType.categories.toSet()
+    val categoriesSet = MimeType.CATEGORIES.toSet()
     for (category in categories) {
         assert(categoriesSet.contains(category))
     }
@@ -62,12 +63,16 @@ fun MimeTypeSelectByCategory(
         mutableStateOf(categories.first())
     }
     var selectedCategory by selectedCategoryState
+    val selectedMimeState = remember { mutableStateOf<MimeType?>(null) }
+    var selectedMime by selectedMimeState
 
     /** mimes in current category x intersected with [allowedMimes] */
-    val categoryMimes by remember {
-        derivedStateOf {
-            MimeType.Inputs.of(selectedCategory)!!
-                .intersect(allowedMimes.toSet())
+    val categoryMimes by remember(selectedMime) {
+        derivedStateOf<Set<MimeType>> {
+            val current = selectedMime
+                ?: return@derivedStateOf emptySet()
+            val baseMimes = MediaCapabilities.Supported.outputsOf(current)
+            baseMimes?.intersect(allowedMimes).orEmpty()
         }
     }
 
@@ -75,14 +80,10 @@ fun MimeTypeSelectByCategory(
     var openCategory by openCategoryState
 
     val openMimeState = remember { mutableStateOf(false) }
-    val selectedMimeState = remember(categoryMimes) {
-        mutableStateOf(categoryMimes.first())
-    }
     var openMime by openMimeState
-    var selectedMime by selectedMimeState
 
     LaunchedEffect(selectedMime) {
-        onSelect(selectedMime)
+        selectedMime?.let { onSelect(it) }
     }
 
     val categoryProps = SplitMenu.Props(
@@ -106,10 +107,14 @@ fun MimeTypeSelectByCategory(
         openState = openMimeState,
         selectedState = selectedMimeState,
         renderSelected = {
-            Text(it.key!!.upper)
+            if (it == null) return@Props
+            Text(it.key.upper)
             ExpandIcon.ArrowMinus(openMime)
         },
-        text = { Text(it.key!!.upper) },
+        text = {
+            if (it == null) return@Props
+            Text(it.key.upper)
+        },
         contentPadding = MimeTypeSelect.contentPad(false),
         contentSpacing = MimeTypeSelect.contentSpacing,
     ) { openMime = !openMime }
@@ -176,7 +181,13 @@ private fun MimeTypeSelectByCategoryPreview() {
         ) {
 
             var selected by remember { mutableStateOf<MimeType>(MimeType.Mp4) }
-            MimeTypeSelect(mimes = MimeType.Inputs.videos) {
+            MimeTypeSelect(
+                mimes = setOf(
+                    MimeType.Avi, MimeType.Flv, MimeType.Webm,
+                    MimeType.Mkv, MimeType.Mp4, MimeType.Mpeg4, MimeType.M4v,
+                    MimeType.Mpeg, MimeType.Quicktime, MimeType.Ogv, MimeType.Wmv,
+                )
+            ) {
                 selected = it
             }
             Text("selected : $selected")
@@ -184,6 +195,7 @@ private fun MimeTypeSelectByCategoryPreview() {
             var selectedByCat by remember { mutableStateOf<MimeType>(MimeType.Mp4) }
             MimeTypeSelectByCategory { selectedByCat = it }
             Text("selected by category : $selectedByCat")
+
         }
     }
 }
