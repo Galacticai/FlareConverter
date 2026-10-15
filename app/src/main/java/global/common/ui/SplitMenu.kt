@@ -17,8 +17,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SplitButton
 import androidx.compose.material3.SplitButtonDefaults
+import androidx.compose.material3.SplitButtonLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -51,37 +51,34 @@ object SplitMenu {
         val onClick: () -> Unit,
     )
 
-    /** @see androidx.compose.material3.SplitButton */
+    /** @see SplitButtonLayout */
     @Composable
     fun <T1, T2> Buttons(
         modifier: Modifier = Modifier,
         pair: Pair<Props<T1>, Props<T2>>,
     ) {
-        SplitButton(
+        SplitButtonLayout(
             modifier = modifier,
             leadingButton = {
                 val pad = pair.first.contentPadding
                     ?: SplitButtonDefaults.leadingButtonContentPaddingFor(
                         SplitButtonDefaults.SmallContainerHeight
                     )
-
                 SplitButtonDefaults.LeadingButton(
                     pair.first.onClick,
                     contentPadding = pad,
                 ) { ButtonContent(pair.first) }
             },
-
             trailingButton = {
                 val pad = pair.second.contentPadding
                     ?: SplitButtonDefaults.trailingButtonContentPaddingFor(
                         SplitButtonDefaults.SmallContainerHeight
                     )
-
                 SplitButtonDefaults.TrailingButton(
                     pair.second.onClick,
                     contentPadding = pad
                 ) { ButtonContent(pair.second) }
-            }
+            },
         )
     }
 

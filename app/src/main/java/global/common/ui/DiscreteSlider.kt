@@ -9,6 +9,7 @@ import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberRangeSliderState
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,6 +43,7 @@ fun <T> DiscreteSlider(
     colors: SliderColors = SliderDefaults.colors(),
     enabled: Boolean = true,
     vibrate: Boolean = true,
+    onChangeFinish: DiscreteSliderOnChange<T>? = null,
     onChange: DiscreteSliderOnChange<T>,
 ) {
     assert(values.size > 1)
@@ -65,10 +67,15 @@ fun <T> DiscreteSlider(
     val valueRange = 0f..iLast.toFloat()
     val steps = values.size - 2
 
+    val state = rememberSliderState(
+        iCurrent.toFloat(), steps, valueRange,
+    )
+
     fun onValueChange(value: Float) {
         val i = value.roundToInt().clamp()
         if (i == iCurrent) return
         iCurrent = i
+        state.value = i.toFloat()
         onChange(values[i], i)
         if (vibrate) {
             haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)
@@ -78,11 +85,9 @@ fun <T> DiscreteSlider(
     if (iCenter == null) {
         return Slider(
             modifier = modifier,
+            state = state,
             enabled = enabled,
-            value = iCurrent.toFloat(),
             onValueChange = ::onValueChange,
-            valueRange = valueRange,
-            steps = steps,
             colors = colors,
             interactionSource = interactionSource,
         )
@@ -94,30 +99,38 @@ fun <T> DiscreteSlider(
             val activeRangeEnd = max(iCenter, iCurrent).toFloat()
         }
     }
-    val trackState = rememberRangeSliderState(
-        activeRangeStart = trackRange.activeRangeStart,
-        activeRangeEnd = trackRange.activeRangeEnd,
+    val rangeState = rememberRangeSliderState(
+        startValue = trackRange.activeRangeStart,
+        endValue = trackRange.activeRangeEnd,
         steps = steps,
-        valueRange = valueRange
+        trackRange = valueRange,
     ).apply {
-        activeRangeStart = trackRange.activeRangeStart
-        activeRangeEnd = trackRange.activeRangeEnd
+        startValue = trackRange.activeRangeStart
+        endValue = trackRange.activeRangeEnd
     }
 
     Slider(
         modifier = modifier,
+        state = state,
         enabled = enabled,
-        value = iCurrent.toFloat(),
         onValueChange = ::onValueChange,
-        valueRange = valueRange,
-        steps = steps,
         colors = colors,
         interactionSource = interactionSource,
+        onValueChangeFinished = if (onChangeFinish == null) null else ({
+            onChangeFinish(values[iCurrent], iCurrent)
+        }),
         track = {
             SliderDefaults.Track(
-                rangeSliderState = trackState,
+                rangeSliderState = rangeState,
+                enabled = enabled,
                 colors = colors,
-                enabled = enabled
+            )
+        },
+        thumb = {
+            SliderDefaults.Thumb(
+                interactionSource,
+                enabled = enabled,
+                colors = colors,
             )
         }
     )
