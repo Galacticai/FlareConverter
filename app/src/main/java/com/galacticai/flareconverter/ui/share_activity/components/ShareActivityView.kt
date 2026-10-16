@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -250,33 +249,25 @@ private fun BoxWithConstraintsScope.ContentAbove(
     val activity = LocalActivity.current as ShareActivity
     val convertStage = LocalConvertStage.current
     val placementState = LocalPlacementState.current
-    val configListState = LocalConfigListState.current
-    val ratio = placementState.ratio
 
-    val colors by ShareActivityView.getBgColors(ratio)
     val inFile by activity.vm.inFileFlow.collectAsState()
-    val hide = inFile !is Progressive.Done
+    val hideConfig = inFile !is Progressive.Done
             || placementState.source == DpPlacement.zero
             || placementState.destination == DpPlacement.zero
 
-    val cardAlphaAnimated by animateFloatAsState(
-        if (hide) 0f else 1f,
-        tween(500),
-        label = "card alpha"
-    )
-
-
-    val scrollConnection = placementState.rememberScrollConnection(configListState)
-    val modifier = boundModifier then
-            Modifier.nestedScroll(scrollConnection) then
-            dragModifier then //! intentional: drag must be AFTER nested scroll
-            ShareActivityView.shadowAbove() then
-            Modifier.alpha(cardAlphaAnimated)
-
     AnimatedVisibility(
-        visible = convertStage <= ConvertStage.Config,
+        visible = !hideConfig && convertStage <= ConvertStage.Config,
         enter = Consistent.Animation.inUp, exit = Consistent.Animation.outDown,
     ) {
+        val configListState = LocalConfigListState.current
+        val ratio = placementState.ratio
+        val colors by ShareActivityView.getBgColors(ratio)
+        val nestedScrollState = placementState.rememberScrollConnection(configListState)
+        val modifier = boundModifier then
+                Modifier.nestedScroll(nestedScrollState) then
+                dragModifier then //! intentional: drag must be AFTER nested scroll
+                ShareActivityView.shadowAbove()
+
         Card(
             modifier = modifier.align(Alignment.BottomCenter),
             shape = Consistent.Shape.Rounded.all,
@@ -297,7 +288,7 @@ private fun BoxWithConstraintsScope.ContentAbove(
             }
 
             AnimatedContent(
-                targetState = hide,
+                targetState = hideConfig,
                 transitionSpec = { Consistent.Animation.inUpOutDown },
             ) {
                 if (it) ConfigViewSkeleton()
