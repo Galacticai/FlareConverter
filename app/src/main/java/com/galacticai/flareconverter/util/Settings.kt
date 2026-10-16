@@ -76,9 +76,6 @@ object Settings {
         /** 0 = pick from file info */
         object Channels : Setting<Int>(0)
 
-        /** null = pick from file info */
-        object Bitrate : Setting<Double>(0.0)
-
         /** 0 = pick from file info */
         object BitrateVideo : Setting<Double>(0.0)
 
