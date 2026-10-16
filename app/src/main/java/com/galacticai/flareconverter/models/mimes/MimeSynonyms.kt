@@ -1,6 +1,6 @@
 package com.galacticai.flareconverter.models.mimes
 
-import com.galacticai.flareconverter.models.Synonyms
+import global.common.models.Synonyms
 
 object MimeSynonyms {
     /** key = [MimeType.category]  |  value = [MimeSynonyms] of [MimeType.extension] */
@@ -11,8 +11,8 @@ object MimeSynonyms {
             setOf("bmp"),
             setOf("tiff", "tif"),
             setOf("svg"),
-            setOf("png"),
-            setOf("jpeg", "jpg"),
+            setOf("png", "apng"),
+            setOf("jpg", "jpeg"),
             setOf("webp"),
             setOf("heic", "heif"),
         ),
@@ -23,7 +23,6 @@ object MimeSynonyms {
             setOf("webm"),
             setOf("mkv"),
             setOf("mp4", "m4v"),
-            setOf("m4v"),
             setOf("mpeg", "mpg"),
             setOf("mov", "qt"),
             setOf("ogg", "ogv"),
@@ -57,7 +56,7 @@ object MimeSynonyms {
             setOf("tiff", "x-tiff", "tif"),
             setOf("svg", "svg+xml"),
             setOf("png", "apng"),
-            setOf("jpeg", "jpg"),
+            setOf("jpg", "jpeg"),
             setOf("webp", "webp_image"),
             setOf("heic", "heif", "hevc"),
         ),
@@ -79,7 +78,7 @@ object MimeSynonyms {
             setOf("vp9", "vp09"),
             setOf("av1", "av01"),
             setOf("mpeg2video", "mpeg2", "m2v"),
-            setOf("mpeg4", "mp4v", "mp4", "m4v", "x-m4v", "mpeg4video"),
+            setOf("mp4", "mpeg4", "mp4v", "m4v", "x-m4v", "mpeg4video"),
             setOf("mjpeg", "motion_jpeg"),
             setOf("yuv", "yuv420p", "i420", "yv12"),
         ),
@@ -92,8 +91,8 @@ object MimeSynonyms {
             setOf("flac", "x-flac", "free_lossless_audio_codec"),
             setOf("wma", "x-ms-wma", "ms-wma"),
             setOf("opus", "libopus"),
-            setOf("3gpp", "amr", "amrnb", "amr_nb", "amrwb", "amr_wb"),
-            setOf("g711", "mlaw", "alaw", "pcm", "mulaw", "pcm_alaw", "pcm_mulaw"),
+            setOf("amr", "3gpp", "amrnb", "amr_nb", "amrwb", "amr_wb"),
+            setOf("pcm", "g711", "mlaw", "alaw", "mulaw", "pcm_alaw", "pcm_mulaw"),
             setOf("ima", "adpcm"),
             setOf("vorbis", "ogg_vorbis"),
             setOf("ac3", "dolby_digital"),
@@ -140,7 +139,7 @@ object MimeSynonyms {
             "vp9" to "webm",
             "av1" to "webm",
             "mpeg2video" to "m2v",
-            "mpeg4" to "mp4",
+            "mp4" to "mp4",
             "mjpeg" to "avi",
             "yuv" to "yuv",
         ),
