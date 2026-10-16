@@ -129,7 +129,7 @@ fun MimeTypeView(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        (mime.key ?: mime.extension).upper,
+                        (mime.extension.ifBlank { mime.key }).upper,
                         style = textStyle,
                         maxLines = 1, overflow = TextOverflow.Ellipsis,
                         textAlign = TextAlign.Center, fontWeight = FontWeight.Bold
@@ -148,6 +148,7 @@ private fun MimeTypePreview() = GalacticTheme {
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         MimeTypeView(MimeType.Png)
+        MimeTypeView(MimeType.Mp4)
         MimeTypeView(MimeType.Quicktime)
         MimeTypeView(MimeType.Mp3)
         MimeTypeView(MimeType.Quicktime, label = "Custom label")
