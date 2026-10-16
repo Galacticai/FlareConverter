@@ -1,6 +1,5 @@
 package com.galacticai.flareconverter.models.mimes
 
-import com.galacticai.flareconverter.util.media.MediaCapabilities
 import global.common.models.Jsonable
 import global.common.util.IOUtil.mime
 import org.json.JSONArray
@@ -19,12 +18,15 @@ open class MimeType(
 
     /** Get [key] with its synonyms ([MimeSynonyms.keysByCategory]) */
     val keys: Set<String> by lazy {
-        setOf(key) + MimeSynonyms.keysByCategory[category]?.get(key).orEmpty()
+        val synonyms = MimeSynonyms.keysByCategory[category]?.get(key).orEmpty()
+        setOf(key) + synonyms
     }
 
     /** Get [extension] with its synonyms ([MimeSynonyms.extensionsByCategory]) */
     val extensions: Set<String> by lazy {
-        setOf(extension) + MimeSynonyms.extensionsByCategory[category]?.get(key).orEmpty()
+        val synonyms = MimeSynonyms.extensionsByCategory[category]
+            ?.get(key).orEmpty()
+        setOf(extension) + synonyms
     }
 
     /** Get the mime type [String] as "[category]/[keys]" */
@@ -40,8 +42,6 @@ open class MimeType(
             val animatedKeys = ANIMATED.flatMap { it.keys }.toSet()
             return keys.any { it in animatedKeys }
         }
-
-    val outMimes get() = MediaCapabilities.Supported.outputsOf(this)
 
     override fun toString() = mime
     override fun toJson() = JSONObject().apply {
@@ -93,8 +93,8 @@ open class MimeType(
         const val AUDIO = "audio"
 
         val CATEGORIES = listOf(IMAGE, VIDEO, AUDIO)
-        val ANIMATED = listOf(MimeType.Gif, MimeType.Apng, MimeType.Webp)
-        val HAS_STREAM_GROUP = setOf(Mp4, Mpeg4, M4v, Quicktime, Heic)
+        val ANIMATED = listOf(Gif, Apng, Webp)
+        val HAS_STREAM_GROUP = listOf(Mp4, Mpeg4, M4v, Quicktime, Heic)
 
         val REGEX = Regex(
             """^(?<category>\*|[a-z0-9\-+.]+)/(?<key>\*|[a-z0-9\-+.]+)$""",

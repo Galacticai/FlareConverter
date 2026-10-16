@@ -314,16 +314,5 @@ object MediaCapabilities {
             val intersected = supported.filter { it.category in toCategories }
             return intersected.ifEmpty { null }?.toSet()
         }
-
-        /** check if a [MimeType] key matches any FFmpeg format key using token-based fuzzy matching */
-        private fun MimeType.matchesFormat(ffmpegFormats: Map<String, Format>): Boolean {
-            val ffmpegTokens = ffmpegFormats.keys
-                .flatMap { it.tokenize() }
-                .toSet()
-
-            return this@matchesFormat.keys.any { key ->
-                key.tokenize().any { token -> token in ffmpegTokens }
-            }
-        }
     }
 }

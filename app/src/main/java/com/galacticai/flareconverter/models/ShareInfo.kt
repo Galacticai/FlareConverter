@@ -21,12 +21,12 @@ data class ShareInfo(
 ) {
     fun toMime(
         mime: MimeType,
-        onFail: ((msg: String) -> Unit)? = null
+        onFail: ((msg: String) -> Unit)? = null,
     ): ShareInfo? = copy(
         extension = mime.extension,
         mimeRaw = mime.mime,
         inMime = mime,
-        outMimes = mime.outMimes
+        outMimes = MediaCapabilities.Supported.outputsOf(mime)
             ?: return run {
                 onFail?.invoke("Cannot convert from this type: $inMime")
                 null
@@ -71,7 +71,7 @@ data class ShareInfo(
                     )
                     null
                 }
-            val outMimes = inMime.outMimes
+            val outMimes = MediaCapabilities.Supported.outputsOf(inMime)
                 ?: return run {
                     onFail("Cannot convert from this type: $inMime")
                     null
